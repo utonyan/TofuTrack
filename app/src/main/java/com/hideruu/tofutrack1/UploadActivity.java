@@ -1,6 +1,6 @@
 package com.hideruu.tofutrack1;
 
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import android.util.Log;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -31,6 +31,7 @@ import java.util.Calendar;
 
 public class UploadActivity extends AppCompatActivity {
 
+    private FirebaseFirestore db;
     ImageView uploadImage;
     Button saveButton;
     EditText uploadTopic, uploadDesc, uploadLang;
@@ -41,6 +42,8 @@ public class UploadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
        super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_upload);
+
+        db = FirebaseFirestore.getInstance();
 
         uploadImage = findViewById(R.id.uploadImage);
         uploadDesc = findViewById(R.id.uploadDesc);
@@ -79,8 +82,7 @@ public class UploadActivity extends AppCompatActivity {
         });
     }
 
-    public void saveData(){
-
+    public void saveData() {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Android Images")
                 .child(uri.getLastPathSegment());
 
@@ -89,6 +91,7 @@ public class UploadActivity extends AppCompatActivity {
         builder.setView(R.layout.progress_layout);
         AlertDialog dialog = builder.create();
         dialog.show();
+
         storageReference.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -96,14 +99,55 @@ public class UploadActivity extends AppCompatActivity {
                 while (!uriTask.isComplete());
                 Uri urlImage = uriTask.getResult();
                 imageURL = urlImage.toString();
+
+                // Call addData to add Firestore data
+                addData();
+
+                // Dismiss the dialog
                 dialog.dismiss();
+
+                // Show a toast indicating success
+                Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
+
+                // Finish the activity or close the current window
+                finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                // Dismiss the dialog
                 dialog.dismiss();
+
+                // Optionally show a failure message
+                Toast.makeText(UploadActivity.this, "Failed to save data", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void addData() {
+        // Retrieve text from EditText fields
+        String title = uploadTopic.getText().toString();
+        String desc = uploadDesc.getText().toString();
+        String lang = uploadLang.getText().toString();
+
+        // Ensure fields are not empty
+        if (title.isEmpty() || desc.isEmpty() || lang.isEmpty() || imageURL == null) {
+            Toast.makeText(UploadActivity.this, "Please fill all fields and select an image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create an instance of DataClass with the retrieved text and the image URL
+        DataClass data = new DataClass(title, desc, lang, imageURL);
+
+        // Add a new document with a generated ID
+        db.collection("data")
+                .add(data)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error adding document", e);
+                });
     }
 
 
