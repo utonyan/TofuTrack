@@ -96,7 +96,6 @@ public class UploadActivity extends AppCompatActivity {
                 while (!uriTask.isComplete());
                 Uri urlImage = uriTask.getResult();
                 imageURL = urlImage.toString();
-                uploadData();
                 dialog.dismiss();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -107,38 +106,5 @@ public class UploadActivity extends AppCompatActivity {
         });
     }
 
-    public void uploadData() {
-        String title = uploadTopic.getText().toString();
-        String desc = uploadDesc.getText().toString();
-        String lang = uploadLang.getText().toString();
-
-        if (title.isEmpty() || desc.isEmpty() || lang.isEmpty() || imageURL == null) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        DataClass dataClass = new DataClass(title, desc, lang, imageURL);
-
-        DatabaseReference productsRef = FirebaseDatabase.getInstance().getReference("Products");
-        productsRef.push().setValue(dataClass)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(UploadActivity.this, "Saved", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.e("Firebase", "Failed to upload data: " + task.getException());
-                            Toast.makeText(UploadActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("Firebase", "Upload failed", e);
-                        Toast.makeText(UploadActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
 
 }
