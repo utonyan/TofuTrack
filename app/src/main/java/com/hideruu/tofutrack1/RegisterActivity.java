@@ -46,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                finish();
             }
         });
     }
@@ -75,18 +76,31 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        if (password.length() < 6) {
+            Toast.makeText(RegisterActivity.this, "Password must be at least 6 characters long.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Display a progress message
+        Toast.makeText(RegisterActivity.this, "Registering user, please wait...", Toast.LENGTH_SHORT).show();
+
+        // Create user with email and password
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
+                    // Optionally, you can send email verification here
+                    Toast.makeText(RegisterActivity.this, "Registration Successful. Please verify your email.", Toast.LENGTH_LONG).show();
                     // Redirect to LoginActivity or MainActivity
                     startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    // Provide specific error messages
+                    String errorMessage = "Registration Failed: " + task.getException().getMessage();
+                    Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
+
 }
