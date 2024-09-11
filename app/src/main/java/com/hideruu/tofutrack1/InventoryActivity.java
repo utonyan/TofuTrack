@@ -20,6 +20,8 @@ import java.util.List;
 
 public class InventoryActivity extends AppCompatActivity {
 
+    private static final int REQUEST_CODE_UPLOAD = 1;
+
     private FloatingActionButton fab;
     private RecyclerView recyclerView;
     private InventoryAdapter adapter;
@@ -54,12 +56,21 @@ public class InventoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(InventoryActivity.this, UploadActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_UPLOAD);
             }
         });
 
         // Fetch data from Firestore
         fetchData();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
+            // Reload data when coming back from UploadActivity
+            fetchData();
+        }
     }
 
     private void fetchData() {

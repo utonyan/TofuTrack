@@ -128,6 +128,8 @@ public class UploadActivity extends AppCompatActivity {
                         addData(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
                         dialog.dismiss();
                         Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
+                        Intent resultIntent = new Intent();
+                        setResult(Activity.RESULT_OK, resultIntent);
                         finish();
                     }
                 });
