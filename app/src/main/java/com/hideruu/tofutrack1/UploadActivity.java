@@ -83,6 +83,30 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     public void saveData() {
+        // Retrieve text from EditText fields
+        String title = uploadTopic.getText().toString().trim();
+        String desc = uploadDesc.getText().toString().trim();
+        String lang = uploadLang.getText().toString().trim();
+
+        // Check if all fields are empty and no image is selected
+        if ((title.isEmpty() && desc.isEmpty() && lang.isEmpty()) && uri == null) {
+            Toast.makeText(UploadActivity.this, "Please fill all text fields and select an image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if only text fields are empty
+        if (title.isEmpty() || desc.isEmpty() || lang.isEmpty()) {
+            Toast.makeText(UploadActivity.this, "Please fill all text fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if no image is selected
+        if (uri == null) {
+            Toast.makeText(UploadActivity.this, "Please select an image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Proceed to upload image if all fields are filled and an image is selected
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Android Images")
                 .child(uri.getLastPathSegment());
 
@@ -123,6 +147,8 @@ public class UploadActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     public void addData() {
         // Retrieve text from EditText fields
