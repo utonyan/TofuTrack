@@ -1,5 +1,7 @@
 package com.hideruu.tofutrack1;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -42,6 +44,7 @@ public class InventoryActivity extends AppCompatActivity {
         fab = findViewById(R.id.fab);
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
+        fab.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
 
         // Initialize product list and adapter
         productList = new ArrayList<>();

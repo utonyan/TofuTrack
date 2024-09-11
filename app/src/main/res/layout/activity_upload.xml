@@ -9,8 +9,6 @@
     android:orientation="vertical"
     tools:context=".UploadActivity">
 
-
-
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,89 +17,108 @@
         android:layout_marginStart="20dp"
         app:cardCornerRadius="30dp"
         app:cardElevation="20dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/lavender_border"
             android:orientation="vertical"
-            android:layout_gravity="center_horizontal"
-            android:padding="20dp"
-            android:background="@drawable/lavender_border">
+            android:padding="20dp">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Upload Data"
-                android:textSize="30sp"
                 android:textAlignment="center"
                 android:textColor="@color/my_primary"
-                android:textStyle="bold" /> <!-- Add this attribute -->
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
             <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/uploadImage"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                android:src="@drawable/uploadimg"
-                android:id="@+id/uploadImage"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
-                android:layout_gravity="center"
-                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"/>/>
+                android:src="@drawable/uploadimg"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
+
             <EditText
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
                 android:id="@+id/uploadProd"
-                android:background="@drawable/lavender_border"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
                 android:layout_marginTop="20dp"
-                android:padding="16dp"
+                android:background="@drawable/red_border"
+                android:gravity="start|center_vertical"
                 android:hint="Enter Product"
-                android:gravity="start|center_vertical"
-                android:textColor="@color/black"/>
+                android:padding="16dp"
+                android:textColor="@color/black" />
+
             <EditText
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
                 android:id="@+id/uploadDesc"
-                android:background="@drawable/lavender_border"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
                 android:layout_marginTop="20dp"
-                android:padding="16dp"
+                android:background="@drawable/red_border"
+                android:gravity="start|center_vertical"
                 android:hint="Enter Description"
-                android:gravity="start|center_vertical"
-                android:textColor="@color/black"/>
+                android:padding="16dp"
+                android:textColor="@color/black" />
+
             <EditText
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
                 android:id="@+id/uploadGroup"
-                android:background="@drawable/lavender_border"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
                 android:layout_marginTop="20dp"
-                android:padding="16dp"
+                android:background="@drawable/red_border"
+                android:gravity="start|center_vertical"
                 android:hint="Enter Group"
-                android:gravity="start|center_vertical"
-                android:textColor="@color/black"/>
+                android:padding="16dp"
+                android:textColor="@color/black" />
+
             <EditText
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
                 android:id="@+id/uploadQty"
-                android:background="@drawable/lavender_border"
-                android:layout_marginTop="20dp"
-                android:padding="16dp"
-                android:hint="Enter Quantity"
-                android:gravity="start|center_vertical"
-                android:inputType="number"
-                android:textColor="@color/black"/>
-            <EditText
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:id="@+id/uploadCost"
-                android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/red_border"
+                android:gravity="start|center_vertical"
+                android:hint="Enter Quantity"
+                android:inputType="number"
                 android:padding="16dp"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/uploadCost"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/red_border"
+                android:gravity="start|center_vertical"
                 android:hint="Enter cost/unit"
                 android:inputType="numberDecimal"
-                android:gravity="start|center_vertical"
-                android:textColor="@color/black"/>
+                android:padding="16dp"
+                android:textColor="@color/black" />
+
             <Button
+                android:id="@+id/saveButton"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:text="Save"
-                android:id="@+id/saveButton"
-                android:textSize="18sp"
                 android:layout_marginTop="20dp"
-                app:cornerRadius = "20dp"/>
+                android:text="Save"
+                android:textColor="@color/off_white"
+                android:textSize="18sp"
+                app:cornerRadius="20dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp">
+
+            </LinearLayout>
+
         </LinearLayout>
+
+
     </androidx.cardview.widget.CardView>
+
 </ScrollView>

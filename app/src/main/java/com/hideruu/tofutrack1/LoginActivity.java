@@ -1,5 +1,6 @@
 package com.hideruu.tofutrack1;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import android.widget.ProgressBar;
 import android.content.Intent;
 import android.os.Bundle;
@@ -95,9 +96,24 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(LoginActivity.this, "Login Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    // Handle different error cases
+                    String errorMessage = "Login Failed";
+                    if (task.getException() != null) {
+                        String exceptionMessage = task.getException().getMessage();
+                        if (exceptionMessage != null) {
+                            if (exceptionMessage.contains("password")) {
+                                errorMessage = "Incorrect password. Please try again.";
+                            } else if (exceptionMessage.contains("email")) {
+                                errorMessage = "No account found with this email.";
+                            } else {
+                                errorMessage = "Login Failed: " + exceptionMessage;
+                            }
+                        }
+                    }
+                    Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
+
 }
