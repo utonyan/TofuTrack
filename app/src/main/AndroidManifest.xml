@@ -23,7 +23,7 @@
             android:name=".InventoryActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".DashboardActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
@@ -39,7 +39,7 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".DashboardActivity"
+            android:name=".SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
