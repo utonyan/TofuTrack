@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "314270240677",
+    "project_id": "tofutrack1",
+    "storage_bucket": "tofutrack1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:314270240677:android:97fbba4d40dccc8479624c",
+        "android_client_info": {
+          "package_name": "com.hideruu.tofutrack1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtTJdmikcvVbEj8qFuNI-nmok-pWjE7RY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
