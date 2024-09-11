@@ -18,47 +18,49 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-import com.google.android.gms.tasks.OnCompleteListener;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import java.text.DateFormat;
-import java.util.Calendar;
+
+import java.util.Date;
+import java.util.Objects;
 
 public class UploadActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
-    ImageView uploadImage;
-    Button saveButton;
-    EditText uploadTopic, uploadDesc, uploadLang;
-    String imageURL;
-    Uri uri;
+    private ImageView uploadImage;
+    private Button saveButton;
+    private EditText uploadProd, uploadDesc, uploadGroup, uploadQty, uploadCost;
+    private String imageURL;
+    private Uri uri;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
-       super.onCreate(savedInstanceState);
-       setContentView(R.layout.activity_upload);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_upload);
 
+        // Initialize Firestore and UI elements
         db = FirebaseFirestore.getInstance();
-
         uploadImage = findViewById(R.id.uploadImage);
+        uploadProd = findViewById(R.id.uploadProd);
         uploadDesc = findViewById(R.id.uploadDesc);
-        uploadTopic = findViewById(R.id.uploadTopic);
-        uploadLang = findViewById(R.id.uploadLang);
+        uploadGroup = findViewById(R.id.uploadGroup);
+        uploadQty = findViewById(R.id.uploadQty);
+        uploadCost = findViewById(R.id.uploadCost);
         saveButton = findViewById(R.id.saveButton);
 
+        // Set up ActivityResultLauncher for image picking
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK){
+                        if (result.getResultCode() == Activity.RESULT_OK) {
                             Intent data = result.getData();
-                            uri = data.getData();
+                            uri = Objects.requireNonNull(data).getData();
                             uploadImage.setImageURI(uri);
                         } else {
                             Toast.makeText(UploadActivity.this, "No Image Selected", Toast.LENGTH_SHORT).show();
@@ -66,6 +68,8 @@ public class UploadActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        // Image upload button click listener
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,6 +78,8 @@ public class UploadActivity extends AppCompatActivity {
                 activityResultLauncher.launch(photoPicker);
             }
         });
+
+        // Save button click listener
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,33 +88,29 @@ public class UploadActivity extends AppCompatActivity {
         });
     }
 
-    public void saveData() {
-        // Retrieve text from EditText fields
-        String title = uploadTopic.getText().toString().trim();
-        String desc = uploadDesc.getText().toString().trim();
-        String lang = uploadLang.getText().toString().trim();
+    // Function to save data
+    private void saveData() {
+        String prodName = uploadProd.getText().toString().trim();
+        String prodDesc = uploadDesc.getText().toString().trim();
+        String prodGroup = uploadGroup.getText().toString().trim();
+        String prodQtyStr = uploadQty.getText().toString().trim();
+        String prodCostStr = uploadCost.getText().toString().trim();
 
-        // Check if all fields are empty and no image is selected
-        if ((title.isEmpty() && desc.isEmpty() && lang.isEmpty()) && uri == null) {
-            Toast.makeText(UploadActivity.this, "Please fill all text fields and select an image", Toast.LENGTH_SHORT).show();
+        // Validate input
+        if (prodName.isEmpty() || prodDesc.isEmpty() || prodGroup.isEmpty() || prodQtyStr.isEmpty() || prodCostStr.isEmpty() || uri == null) {
+            Toast.makeText(UploadActivity.this, "Please fill all fields and select an image", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Check if only text fields are empty
-        if (title.isEmpty() || desc.isEmpty() || lang.isEmpty()) {
-            Toast.makeText(UploadActivity.this, "Please fill all text fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Convert quantity and cost to their respective types
+        int prodQty = Integer.parseInt(prodQtyStr);
+        double prodCost = Double.parseDouble(prodCostStr);
+        double prodTotalPrice = prodQty * prodCost; // Calculate total price
 
-        // Check if no image is selected
-        if (uri == null) {
-            Toast.makeText(UploadActivity.this, "Please select an image", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Proceed to upload image if all fields are filled and an image is selected
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Android Images")
-                .child(uri.getLastPathSegment());
+        // Upload image to Firebase Storage
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                .child("ProductImages")
+                .child(Objects.requireNonNull(uri.getLastPathSegment()));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
         builder.setCancelable(false);
@@ -119,62 +121,36 @@ public class UploadActivity extends AppCompatActivity {
         storageReference.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                while (!uriTask.isComplete());
-                Uri urlImage = uriTask.getResult();
-                imageURL = urlImage.toString();
-
-                // Call addData to add Firestore data
-                addData();
-
-                // Dismiss the dialog
-                dialog.dismiss();
-
-                // Show a toast indicating success
-                Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
-
-                // Finish the activity or close the current window
-                finish();
+                taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        imageURL = uri.toString();
+                        addData(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
+                        dialog.dismiss();
+                        Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                // Dismiss the dialog
                 dialog.dismiss();
-
-                // Optionally show a failure message
                 Toast.makeText(UploadActivity.this, "Failed to save data", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // Function to add data to Firestore
+    private void addData(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
+        Date dateAdded = new Date(); // Set the current date and time
 
+        DataClass data = new DataClass(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded);
 
-    public void addData() {
-        // Retrieve text from EditText fields
-        String title = uploadTopic.getText().toString();
-        String desc = uploadDesc.getText().toString();
-        String lang = uploadLang.getText().toString();
-
-        // Ensure fields are not empty
-        if (title.isEmpty() || desc.isEmpty() || lang.isEmpty() || imageURL == null) {
-            Toast.makeText(UploadActivity.this, "Please fill all fields and select an image", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Create an instance of DataClass with the retrieved text and the image URL
-        DataClass data = new DataClass(title, desc, lang, imageURL);
-
-        // Add a new document with a generated ID
-        db.collection("data")
-                .add(data)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error adding document", e);
-                });
+        db.collection("products").add(data).addOnSuccessListener(documentReference -> {
+            Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+        }).addOnFailureListener(e -> {
+            Log.w("Firestore", "Error adding document", e);
+        });
     }
-
-
 }

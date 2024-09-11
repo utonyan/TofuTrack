@@ -43,11 +43,11 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:id="@+id/uploadTopic"
+                android:id="@+id/uploadProd"
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint="Enter topic name"
+                android:hint="Enter Product"
                 android:gravity="start|center_vertical"
                 android:textColor="@color/black"/>
             <EditText
@@ -57,17 +57,39 @@
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint="Enter description"
+                android:hint="Enter Description"
                 android:gravity="start|center_vertical"
                 android:textColor="@color/black"/>
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:id="@+id/uploadLang"
+                android:id="@+id/uploadGroup"
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint="Enter language"
+                android:hint="Enter Group"
+                android:gravity="start|center_vertical"
+                android:textColor="@color/black"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:id="@+id/uploadQty"
+                android:background="@drawable/lavender_border"
+                android:layout_marginTop="20dp"
+                android:padding="16dp"
+                android:hint="Enter Quantity"
+                android:gravity="start|center_vertical"
+                android:inputType="number"
+                android:textColor="@color/black"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:id="@+id/uploadCost"
+                android:background="@drawable/lavender_border"
+                android:layout_marginTop="20dp"
+                android:padding="16dp"
+                android:hint="Enter cost/unit"
+                android:inputType="numberDecimal"
                 android:gravity="start|center_vertical"
                 android:textColor="@color/black"/>
             <Button
