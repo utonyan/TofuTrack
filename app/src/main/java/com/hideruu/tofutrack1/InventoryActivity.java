@@ -71,34 +71,59 @@ public class InventoryActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
-            // Reload data when coming back from UploadActivity
-            fetchData();
+            // Reload data when coming back from UploadActivity after successful addition
+            fetchData(); // This will refresh the RecyclerView with updated data
         }
     }
+
 
     private void fetchData() {
         progressBar.setVisibility(View.VISIBLE);
 
+        // First try to fetch from the cache
         db.collection("products")
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         productList.clear();
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass product = document.toObject(DataClass.class);
                             productList.add(product);
                         }
+
                         adapter.notifyDataSetChanged();
                         progressBar.setVisibility(View.GONE);
+                    } else {
+                        Log.d("Firestore", "No data found in cache, fetching from server...");
+                        // Now fetch from server
+                        fetchDataFromServer();
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Firestore", "Error getting documents", e);
-                        progressBar.setVisibility(View.GONE);
-                    }
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error loading data", e);
+                    progressBar.setVisibility(View.GONE);
                 });
     }
+
+    private void fetchDataFromServer() {
+        db.collection("products")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    productList.clear();
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        DataClass product = document.toObject(DataClass.class);
+                        productList.add(product);
+                    }
+
+                    adapter.notifyDataSetChanged();
+                    progressBar.setVisibility(View.GONE);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error loading data from server", e);
+                    progressBar.setVisibility(View.GONE);
+                });
+    }
+
 }

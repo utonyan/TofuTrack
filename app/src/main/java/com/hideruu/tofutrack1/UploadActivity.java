@@ -156,6 +156,11 @@ public class UploadActivity extends AppCompatActivity {
                         imageURL = uri.toString();
                         addDataToFirestore(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
                         dialog.dismiss();
+
+                        // Return result to InventoryActivity indicating success
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_OK, resultIntent);
+
                         Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
                         finish();
                     }
@@ -169,6 +174,7 @@ public class UploadActivity extends AppCompatActivity {
             }
         });
     }
+
 
     // Function to add data to Firestore
     private void addDataToFirestore(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
