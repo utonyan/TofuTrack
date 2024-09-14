@@ -35,6 +35,8 @@ android {
 
 dependencies {
 
+    implementation ("androidx.work:work-runtime:2.8.1") // Use the latest version
+
     implementation ("com.google.firebase:firebase-database:20.0.")
     implementation ("com.google.firebase:firebase-storage:20.0.0")
     implementation("com.google.firebase:firebase-analytics")

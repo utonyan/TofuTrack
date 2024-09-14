@@ -1,6 +1,7 @@
 package com.hideruu.tofutrack1;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import android.util.Log;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -8,9 +9,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.*;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -25,6 +30,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
 
@@ -42,8 +52,14 @@ public class UploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
 
-        // Initialize Firestore and UI elements
+        // Initialize Firestore and enable offline persistence
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true) // Enable offline persistence
+                .build();
+        db.setFirestoreSettings(settings);
+
+        // Initialize UI elements
         uploadImage = findViewById(R.id.uploadImage);
         uploadProd = findViewById(R.id.uploadProd);
         uploadDesc = findViewById(R.id.uploadDesc);
@@ -107,7 +123,20 @@ public class UploadActivity extends AppCompatActivity {
         double prodCost = Double.parseDouble(prodCostStr);
         double prodTotalPrice = prodQty * prodCost; // Calculate total price
 
-        // Upload image to Firebase Storage
+        if (isNetworkAvailable()) {
+            // If network is available, upload image and data to Firestore
+            uploadImageToFirebase(uri, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
+        } else {
+            // Save image locally and schedule upload when network is available
+            saveImageLocally(uri);
+            scheduleImageUploadTask(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
+            Toast.makeText(UploadActivity.this, "Saved locally, will upload when online", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    // Upload image to Firebase Storage
+    private void uploadImageToFirebase(Uri uri, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice) {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference()
                 .child("ProductImages")
                 .child(Objects.requireNonNull(uri.getLastPathSegment()));
@@ -125,11 +154,9 @@ public class UploadActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Uri uri) {
                         imageURL = uri.toString();
-                        addData(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
+                        addDataToFirestore(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
                         dialog.dismiss();
                         Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
-                        Intent resultIntent = new Intent();
-                        setResult(Activity.RESULT_OK, resultIntent);
                         finish();
                     }
                 });
@@ -144,7 +171,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     // Function to add data to Firestore
-    private void addData(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
+    private void addDataToFirestore(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
         Date dateAdded = new Date(); // Set the current date and time
 
         DataClass data = new DataClass(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded);
@@ -154,5 +181,54 @@ public class UploadActivity extends AppCompatActivity {
         }).addOnFailureListener(e -> {
             Log.w("Firestore", "Error adding document", e);
         });
+    }
+
+    // Function to save image locally
+    private void saveImageLocally(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            File file = new File(getCacheDir(), "temp_image.jpg");
+            OutputStream outputStream = new FileOutputStream(file);
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Check if network is available
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    // Schedule image upload task when network is available
+    private void scheduleImageUploadTask(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice) {
+        Data inputData = new Data.Builder()
+                .putString("prodName", prodName)
+                .putString("prodDesc", prodDesc)
+                .putString("prodGroup", prodGroup)
+                .putInt("prodQty", prodQty)
+                .putDouble("prodCost", prodCost)
+                .putDouble("prodTotalPrice", prodTotalPrice)
+                .putString("image_path", new File(getCacheDir(), "temp_image.jpg").getAbsolutePath())
+                .build();
+
+        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest.Builder(ImageUploadWorker.class)
+                .setInputData(inputData)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build())
+                .build();
+
+        WorkManager.getInstance(this).enqueue(uploadWorkRequest);
     }
 }
