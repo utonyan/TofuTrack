@@ -118,7 +118,7 @@ public class UploadActivity extends AppCompatActivity {
             return;
         }
 
-        // Convert quantity and cost to their respective types REVERTED
+        // Convert quantity and cost to their respective types REVERTED AGAIN
         int prodQty = Integer.parseInt(prodQtyStr);
         double prodCost = Double.parseDouble(prodCostStr);
         double prodTotalPrice = prodQty * prodCost; // Calculate total price
