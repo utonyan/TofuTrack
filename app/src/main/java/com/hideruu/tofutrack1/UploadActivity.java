@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
+import java.util.UUID;
 
 public class UploadActivity extends AppCompatActivity {
 
@@ -46,6 +47,7 @@ public class UploadActivity extends AppCompatActivity {
     private EditText uploadProd, uploadDesc, uploadGroup, uploadQty, uploadCost;
     private String imageURL;
     private Uri uri;
+    private String uniqueImageName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,7 @@ public class UploadActivity extends AppCompatActivity {
                         if (result.getResultCode() == Activity.RESULT_OK) {
                             Intent data = result.getData();
                             uri = Objects.requireNonNull(data).getData();
+                            uniqueImageName = UUID.randomUUID().toString(); // Generate unique image name
                             uploadImage.setImageURI(uri);
                         } else {
                             Toast.makeText(UploadActivity.this, "No Image Selected", Toast.LENGTH_SHORT).show();
@@ -113,12 +116,12 @@ public class UploadActivity extends AppCompatActivity {
         String prodCostStr = uploadCost.getText().toString().trim();
 
         // Validate input
-        if (prodName.isEmpty() || prodDesc.isEmpty() || prodGroup.isEmpty() || prodQtyStr.isEmpty() || prodCostStr.isEmpty() || uri == null) {
+        if (prodName.isEmpty() || prodGroup.isEmpty() || prodQtyStr.isEmpty() || prodCostStr.isEmpty() || uri == null) {
             Toast.makeText(UploadActivity.this, "Please fill all fields and select an image", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Convert quantity and cost to their respective types REVERTED AGAIN
+        // Convert quantity and cost to their respective types
         int prodQty = Integer.parseInt(prodQtyStr);
         double prodCost = Double.parseDouble(prodCostStr);
         double prodTotalPrice = prodQty * prodCost; // Calculate total price
@@ -128,8 +131,8 @@ public class UploadActivity extends AppCompatActivity {
             uploadImageToFirebase(uri, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
         } else {
             // Save image locally and schedule upload when network is available
-            saveImageLocally(uri);
-            scheduleImageUploadTask(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
+            saveImageLocally(uri, uniqueImageName);
+            scheduleImageUploadTask(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, uniqueImageName);
             Toast.makeText(UploadActivity.this, "Saved locally, will upload when online", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -139,7 +142,7 @@ public class UploadActivity extends AppCompatActivity {
     private void uploadImageToFirebase(Uri uri, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice) {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference()
                 .child("ProductImages")
-                .child(Objects.requireNonNull(uri.getLastPathSegment()));
+                .child(uniqueImageName);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
         builder.setCancelable(false);
@@ -175,7 +178,6 @@ public class UploadActivity extends AppCompatActivity {
         });
     }
 
-
     // Function to add data to Firestore
     private void addDataToFirestore(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
         Date dateAdded = new Date(); // Set the current date and time
@@ -189,11 +191,11 @@ public class UploadActivity extends AppCompatActivity {
         });
     }
 
-    // Function to save image locally
-    private void saveImageLocally(Uri uri) {
+    // Function to save image locally with unique name
+    private void saveImageLocally(Uri uri, String uniqueImageName) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
-            File file = new File(getCacheDir(), "temp_image.jpg");
+            File file = new File(getCacheDir(), uniqueImageName + ".jpg");
             OutputStream outputStream = new FileOutputStream(file);
 
             byte[] buffer = new byte[1024];
@@ -217,7 +219,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     // Schedule image upload task when network is available
-    private void scheduleImageUploadTask(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice) {
+    private void scheduleImageUploadTask(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String uniqueImageName) {
         Data inputData = new Data.Builder()
                 .putString("prodName", prodName)
                 .putString("prodDesc", prodDesc)
@@ -225,7 +227,7 @@ public class UploadActivity extends AppCompatActivity {
                 .putInt("prodQty", prodQty)
                 .putDouble("prodCost", prodCost)
                 .putDouble("prodTotalPrice", prodTotalPrice)
-                .putString("image_path", new File(getCacheDir(), "temp_image.jpg").getAbsolutePath())
+                .putString("image_name", uniqueImageName)
                 .build();
 
         OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest.Builder(ImageUploadWorker.class)

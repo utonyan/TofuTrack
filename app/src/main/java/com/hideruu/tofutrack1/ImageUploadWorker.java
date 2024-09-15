@@ -15,49 +15,44 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 public class ImageUploadWorker extends Worker {
-
     private FirebaseFirestore db;
 
     public ImageUploadWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
-        db = FirebaseFirestore.getInstance(); // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        // Get input data
+        Log.d("ImageUploadWorker", "Worker started");
+
         String prodName = getInputData().getString("prodName");
         String prodDesc = getInputData().getString("prodDesc");
         String prodGroup = getInputData().getString("prodGroup");
         int prodQty = getInputData().getInt("prodQty", 0);
         double prodCost = getInputData().getDouble("prodCost", 0);
         double prodTotalPrice = getInputData().getDouble("prodTotalPrice", 0);
-        String imagePath = getInputData().getString("image_path");
+        String imageName = getInputData().getString("image_name");
 
-        // Ensure the image path exists
-        if (imagePath == null || prodName == null || prodDesc == null || prodGroup == null) {
+        if (imageName == null || prodName == null || prodDesc == null || prodGroup == null) {
             return Result.failure();
         }
 
-        // Create a Uri from the image path
-        File file = new File(imagePath);
+        File file = new File(getApplicationContext().getCacheDir(), imageName + ".jpg");
         Uri uri = Uri.fromFile(file);
 
-        // Get a reference to Firebase Storage
         StorageReference storageReference = FirebaseStorage.getInstance().getReference()
                 .child("ProductImages")
-                .child(file.getName());
+                .child(imageName);
 
         try {
-            // Upload the image to Firebase Storage
             storageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
-                // Get the download URL once the image is uploaded
                 taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(downloadUri -> {
                     String imageURL = downloadUri.toString();
-                    // Once the image is uploaded, save the product data to Firestore
                     addDataToFirestore(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
                 }).addOnFailureListener(e -> {
                     Log.e("ImageUploadWorker", "Failed to get download URL: ", e);
@@ -73,18 +68,11 @@ public class ImageUploadWorker extends Worker {
         }
     }
 
-    // Function to add data to Firestore
     private void addDataToFirestore(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
-        Date dateAdded = new Date(); // Set the current date and time
-
-        // Create a new DataClass object
+        Date dateAdded = new Date();
         DataClass data = new DataClass(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded);
-
-        // Save the product information to Firestore
-        db.collection("products").add(data).addOnSuccessListener(documentReference -> {
-            Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
-        }).addOnFailureListener(e -> {
-            Log.w("Firestore", "Error adding document", e);
-        });
+        db.collection("products").add(data)
+                .addOnSuccessListener(documentReference -> Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error adding document", e));
     }
 }
