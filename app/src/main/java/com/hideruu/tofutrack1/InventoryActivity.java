@@ -23,7 +23,8 @@ import java.util.List;
 public class InventoryActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_UPLOAD = 1;
-    private static final int REQUEST_CODE_DELETE = 2;
+    public static final int REQUEST_CODE_DELETE = 2; // Add this in InventoryActivity
+
 
 
     private FloatingActionButton fab;
@@ -84,7 +85,6 @@ public class InventoryActivity extends AppCompatActivity {
             fetchData(); // Reload data when coming back after deletion
         }
     }
-
 
 
     private void setupSearchView() {

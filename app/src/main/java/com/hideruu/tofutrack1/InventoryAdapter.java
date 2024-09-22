@@ -1,5 +1,7 @@
 package com.hideruu.tofutrack1;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -53,7 +55,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         // Handle item click to open DetailActivity
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), DetailActivity.class);
-            intent.putExtra("productId", product.getProductId()); // Pass productId
+            intent.putExtra("productId", product.getProductId());
             intent.putExtra("prodName", product.getProdName());
             intent.putExtra("prodDesc", product.getProdDesc());
             intent.putExtra("prodGroup", product.getProdGroup());
@@ -61,7 +63,14 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
             intent.putExtra("prodCost", product.getProdCost());
             intent.putExtra("prodTotalPrice", product.getProdTotalPrice());
             intent.putExtra("prodImage", product.getDataImage());
-            holder.itemView.getContext().startActivity(intent);
+
+            // Safely start DetailActivity for result
+            Context context = holder.itemView.getContext();
+            if (context instanceof Activity) {
+                ((Activity) context).startActivityForResult(intent, InventoryActivity.REQUEST_CODE_DELETE);
+            } else {
+                Log.e("InventoryAdapter", "Context is not an Activity");
+            }
         });
     }
 
