@@ -23,6 +23,8 @@ import java.util.List;
 public class InventoryActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_UPLOAD = 1;
+    private static final int REQUEST_CODE_DELETE = 2;
+
 
     private FloatingActionButton fab;
     private RecyclerView recyclerView;
@@ -77,10 +79,13 @@ public class InventoryActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
-            // Reload data when coming back from UploadActivity after successful addition
-            fetchData(); // This will refresh the RecyclerView with updated data
+            fetchData(); // Reload data when coming back from UploadActivity
+        } else if (requestCode == REQUEST_CODE_DELETE && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back after deletion
         }
     }
+
+
 
     private void setupSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

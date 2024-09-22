@@ -48,6 +48,7 @@ public class UploadActivity extends AppCompatActivity {
     private String imageURL;
     private Uri uri;
     private String uniqueImageName;
+    private String productId;  // New field for product ID
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,22 +90,14 @@ public class UploadActivity extends AppCompatActivity {
         );
 
         // Image upload button click listener
-        uploadImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent photoPicker = new Intent(Intent.ACTION_PICK);
-                photoPicker.setType("image/*");
-                activityResultLauncher.launch(photoPicker);
-            }
+        uploadImage.setOnClickListener(view -> {
+            Intent photoPicker = new Intent(Intent.ACTION_PICK);
+            photoPicker.setType("image/*");
+            activityResultLauncher.launch(photoPicker);
         });
 
         // Save button click listener
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveData();
-            }
-        });
+        saveButton.setOnClickListener(view -> saveData());
     }
 
     // Function to save data
@@ -114,6 +107,11 @@ public class UploadActivity extends AppCompatActivity {
         String prodGroup = uploadGroup.getText().toString().trim();
         String prodQtyStr = uploadQty.getText().toString().trim();
         String prodCostStr = uploadCost.getText().toString().trim();
+
+        // Set prodDesc to "N/A" if it's empty
+        if (prodDesc.isEmpty()) {
+            prodDesc = "N/A";
+        }
 
         // Validate input
         if (prodName.isEmpty() || prodGroup.isEmpty() || prodQtyStr.isEmpty() || prodCostStr.isEmpty() || uri == null) {
@@ -126,20 +124,23 @@ public class UploadActivity extends AppCompatActivity {
         double prodCost = Double.parseDouble(prodCostStr);
         double prodTotalPrice = prodQty * prodCost; // Calculate total price
 
+        // Generate a unique productId
+        productId = UUID.randomUUID().toString();
+
         if (isNetworkAvailable()) {
             // If network is available, upload image and data to Firestore
-            uploadImageToFirebase(uri, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
+            uploadImageToFirebase(uri, productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
         } else {
             // Save image locally and schedule upload when network is available
             saveImageLocally(uri, uniqueImageName);
-            scheduleImageUploadTask(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, uniqueImageName);
+            scheduleImageUploadTask(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, uniqueImageName);
             Toast.makeText(UploadActivity.this, "Saved locally, will upload when online", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
 
     // Upload image to Firebase Storage
-    private void uploadImageToFirebase(Uri uri, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice) {
+    private void uploadImageToFirebase(Uri uri, String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice) {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference()
                 .child("ProductImages")
                 .child(uniqueImageName);
@@ -150,39 +151,30 @@ public class UploadActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        storageReference.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        imageURL = uri.toString();
-                        addDataToFirestore(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
-                        dialog.dismiss();
-
-                        // Return result to InventoryActivity indicating success
-                        Intent resultIntent = new Intent();
-                        setResult(RESULT_OK, resultIntent);
-
-                        Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+        storageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
+            taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(uri1 -> {
+                imageURL = uri1.toString();
+                addDataToFirestore(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
                 dialog.dismiss();
-                Toast.makeText(UploadActivity.this, "Failed to save data", Toast.LENGTH_SHORT).show();
-            }
+
+                // Return result to InventoryActivity indicating success
+                Intent resultIntent = new Intent();
+                setResult(RESULT_OK, resultIntent);
+
+                Toast.makeText(UploadActivity.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            });
+        }).addOnFailureListener(e -> {
+            dialog.dismiss();
+            Toast.makeText(UploadActivity.this, "Failed to save data", Toast.LENGTH_SHORT).show();
         });
     }
 
     // Function to add data to Firestore
-    private void addDataToFirestore(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
+    private void addDataToFirestore(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
         Date dateAdded = new Date(); // Set the current date and time
 
-        DataClass data = new DataClass(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded);
+        DataClass data = new DataClass(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded);
 
         db.collection("products").add(data).addOnSuccessListener(documentReference -> {
             Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
@@ -219,8 +211,9 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     // Schedule image upload task when network is available
-    private void scheduleImageUploadTask(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String uniqueImageName) {
+    private void scheduleImageUploadTask(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String uniqueImageName) {
         Data inputData = new Data.Builder()
+                .putString("productId", productId)  // Add productId to input data
                 .putString("prodName", prodName)
                 .putString("prodDesc", prodDesc)
                 .putString("prodGroup", prodGroup)
@@ -239,4 +232,5 @@ public class UploadActivity extends AppCompatActivity {
 
         WorkManager.getInstance(this).enqueue(uploadWorkRequest);
     }
+
 }

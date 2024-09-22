@@ -1,5 +1,6 @@
 package com.hideruu.tofutrack1;
 
+import android.util.Log;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,9 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
     public void onBindViewHolder(@NonNull InventoryViewHolder holder, int position) {
         DataClass product = productList.get(position);
 
+        // Log product ID
+        Log.d("InventoryAdapter", "Product ID: " + product.getProductId());
+
         // Set product details to views
         holder.prodName.setText(product.getProdName());
         holder.prodDesc.setText("Description: " + product.getProdDesc());
@@ -49,6 +53,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         // Handle item click to open DetailActivity
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), DetailActivity.class);
+            intent.putExtra("productId", product.getProductId()); // Pass productId
             intent.putExtra("prodName", product.getProdName());
             intent.putExtra("prodDesc", product.getProdDesc());
             intent.putExtra("prodGroup", product.getProdGroup());
@@ -59,6 +64,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
             holder.itemView.getContext().startActivity(intent);
         });
     }
+
 
     @Override
     public int getItemCount() {

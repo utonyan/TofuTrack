@@ -15,7 +15,6 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
 public class ImageUploadWorker extends Worker {
     private FirebaseFirestore db;
@@ -30,6 +29,7 @@ public class ImageUploadWorker extends Worker {
     public Result doWork() {
         Log.d("ImageUploadWorker", "Worker started");
 
+        String productId = getInputData().getString("productId"); // Get productId
         String prodName = getInputData().getString("prodName");
         String prodDesc = getInputData().getString("prodDesc");
         String prodGroup = getInputData().getString("prodGroup");
@@ -38,7 +38,7 @@ public class ImageUploadWorker extends Worker {
         double prodTotalPrice = getInputData().getDouble("prodTotalPrice", 0);
         String imageName = getInputData().getString("image_name");
 
-        if (imageName == null || prodName == null || prodDesc == null || prodGroup == null) {
+        if (imageName == null || prodName == null || prodDesc == null || prodGroup == null || productId == null) {
             return Result.failure();
         }
 
@@ -53,7 +53,7 @@ public class ImageUploadWorker extends Worker {
             storageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
                 taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(downloadUri -> {
                     String imageURL = downloadUri.toString();
-                    addDataToFirestore(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
+                    addDataToFirestore(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL); // Include productId
                 }).addOnFailureListener(e -> {
                     Log.e("ImageUploadWorker", "Failed to get download URL: ", e);
                 });
@@ -68,11 +68,13 @@ public class ImageUploadWorker extends Worker {
         }
     }
 
-    private void addDataToFirestore(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
+    private void addDataToFirestore(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
         Date dateAdded = new Date();
-        DataClass data = new DataClass(prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded);
-        db.collection("products").add(data)
-                .addOnSuccessListener(documentReference -> Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId()))
+        DataClass data = new DataClass(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded); // Include productId in DataClass
+
+        db.collection("products").document(productId) // Save with productId as the document ID
+                .set(data)
+                .addOnSuccessListener(documentReference -> Log.d("Firestore", "DocumentSnapshot added with ID: " + productId))
                 .addOnFailureListener(e -> Log.w("Firestore", "Error adding document", e));
     }
 }

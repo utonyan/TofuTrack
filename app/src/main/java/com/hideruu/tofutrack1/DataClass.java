@@ -5,6 +5,7 @@ import java.util.Date;
 
 @IgnoreExtraProperties
 public class DataClass {
+    private String productId;  // New product ID field
     private String prodName;
     private String prodDesc;
     private String prodGroup;
@@ -18,8 +19,9 @@ public class DataClass {
     public DataClass() {
     }
 
-    // Parameterized constructor
-    public DataClass(String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String dataImage, Date dateAdded) {
+    // Parameterized constructor including productId
+    public DataClass(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String dataImage, Date dateAdded) {
+        this.productId = productId;
         this.prodName = prodName;
         this.prodDesc = prodDesc;
         this.prodGroup = prodGroup;
@@ -31,6 +33,10 @@ public class DataClass {
     }
 
     // Getters
+    public String getProductId() {
+        return productId;
+    }
+
     public String getProdName() {
         return prodName;
     }
@@ -64,6 +70,10 @@ public class DataClass {
     }
 
     // Setters
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
     public void setProdName(String prodName) {
         this.prodName = prodName;
     }
