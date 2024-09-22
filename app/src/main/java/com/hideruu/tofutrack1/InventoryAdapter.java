@@ -1,5 +1,6 @@
 package com.hideruu.tofutrack1;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,17 +32,32 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
     @Override
     public void onBindViewHolder(@NonNull InventoryViewHolder holder, int position) {
         DataClass product = productList.get(position);
+
+        // Set product details to views
         holder.prodName.setText(product.getProdName());
-        holder.prodDesc.setText("Description: " +product.getProdDesc());
-        holder.prodGroup.setText("Group: " +product.getProdGroup());
+        holder.prodDesc.setText("Description: " + product.getProdDesc());
+        holder.prodGroup.setText("Group: " + product.getProdGroup());
         holder.prodQty.setText("Quantity: " + product.getProdQty());
         holder.prodCost.setText("Cost per unit: ₱" + String.format("%.2f", product.getProdCost()));
         holder.prodTotalPrice.setText("Total: ₱" + String.format("%.2f", product.getProdTotalPrice()));
 
-        // Load image using Glide library
+        // Load image using Glide
         Glide.with(holder.itemView.getContext())
                 .load(product.getDataImage())
                 .into(holder.prodImage);
+
+        // Handle item click to open DetailActivity
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(holder.itemView.getContext(), DetailActivity.class);
+            intent.putExtra("prodName", product.getProdName());
+            intent.putExtra("prodDesc", product.getProdDesc());
+            intent.putExtra("prodGroup", product.getProdGroup());
+            intent.putExtra("prodQty", product.getProdQty());
+            intent.putExtra("prodCost", product.getProdCost());
+            intent.putExtra("prodTotalPrice", product.getProdTotalPrice());
+            intent.putExtra("prodImage", product.getDataImage());
+            holder.itemView.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -57,6 +73,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         public InventoryViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            // Initialize views
             prodName = itemView.findViewById(R.id.prodName);
             prodDesc = itemView.findViewById(R.id.prodDesc);
             prodGroup = itemView.findViewById(R.id.prodGroup);

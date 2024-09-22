@@ -11,4 +11,6 @@
     <color name="light_gray">#C3C3C3</color>
 
     <color name="skyblue">#FD1846</color>
+    <color name="transparent_black">#80000000</color>
+
 </resources>

@@ -48,6 +48,7 @@ public class InventoryActivity extends AppCompatActivity {
         searchView = findViewById(R.id.searchView);
         fab.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
 
+
         // Initialize product list and adapter
         productList = new ArrayList<>();
         adapter = new InventoryAdapter(productList);
@@ -201,4 +202,5 @@ public class InventoryActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                 });
     }
+
 }
