@@ -82,8 +82,6 @@ public class UploadActivity extends AppCompatActivity {
                             uri = Objects.requireNonNull(data).getData();
                             uniqueImageName = UUID.randomUUID().toString(); // Generate unique image name
                             uploadImage.setImageURI(uri);
-                        } else {
-                            Toast.makeText(UploadActivity.this, "No Image Selected", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -127,15 +125,13 @@ public class UploadActivity extends AppCompatActivity {
         // Generate a unique productId
         productId = UUID.randomUUID().toString();
 
+        // Check for network connectivity
         if (isNetworkAvailable()) {
             // If network is available, upload image and data to Firestore
             uploadImageToFirebase(uri, productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
         } else {
-            // Save image locally and schedule upload when network is available
-            saveImageLocally(uri, uniqueImageName);
-            scheduleImageUploadTask(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, uniqueImageName);
-            Toast.makeText(UploadActivity.this, "Saved locally, will upload when online", Toast.LENGTH_SHORT).show();
-            finish();
+            // Show a toast indicating that an internet connection is required
+            Toast.makeText(UploadActivity.this, "An internet connection is required to add a product", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -183,7 +179,7 @@ public class UploadActivity extends AppCompatActivity {
         });
     }
 
-    // Function to save image locally with unique name
+    // Function to save image locally with unique name *FOR FUTURE USE*
     private void saveImageLocally(Uri uri, String uniqueImageName) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
@@ -210,7 +206,7 @@ public class UploadActivity extends AppCompatActivity {
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    // Schedule image upload task when network is available
+    // Schedule image upload task when network is available *FOR FUTURE USE*
     private void scheduleImageUploadTask(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String uniqueImageName) {
         Data inputData = new Data.Builder()
                 .putString("productId", productId)  // Add productId to input data
