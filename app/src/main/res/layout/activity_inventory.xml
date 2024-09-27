@@ -20,8 +20,6 @@
         app:searchHintIcon="@null"
         app:queryHint="Search..."
         android:focusable="false"
-        app:closeIcon="@drawable/icon_search"
-        app:searchIcon="@drawable/icon_search"
         android:elevation="5dp"
         android:background="@drawable/lavender_border"/>
 

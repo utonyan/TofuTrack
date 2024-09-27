@@ -39,24 +39,12 @@
             android:text="Product Name"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/prodDesc"
+            app:layout_constraintBottom_toTopOf="@+id/prodGroup"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/prodImage"
             app:layout_constraintHorizontal_bias="0.5"/>
 
-        <!-- Product Description -->
-        <TextView
-            android:id="@+id/prodDesc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Product Description"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toTopOf="@+id/prodGroup"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/prodName"
-            app:layout_constraintHorizontal_bias="0"/>
 
         <!-- Product Group -->
         <TextView
@@ -68,7 +56,7 @@
             app:layout_constraintBottom_toTopOf="@+id/prodQty"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/prodDesc"
+            app:layout_constraintTop_toBottomOf="@+id/prodName"
             app:layout_constraintHorizontal_bias="0"/>
 
         <!-- Product Quantity -->

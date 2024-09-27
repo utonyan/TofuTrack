@@ -28,21 +28,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Upload Data"
+                android:text="Update Data"
                 android:textAlignment="center"
                 android:textColor="@color/my_primary"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/uploadImage"
-                android:scaleType="centerCrop"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="10dp"
-                android:src="@drawable/uploadimg"
-                app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
+
 
             <EditText
                 android:id="@+id/uploadProd"
@@ -53,7 +45,9 @@
                 android:gravity="start|center_vertical"
                 android:hint="Enter Product"
                 android:padding="16dp"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:enabled="false" /> <!-- This disables the EditText -->
+
 
             <EditText
                 android:id="@+id/uploadDesc"

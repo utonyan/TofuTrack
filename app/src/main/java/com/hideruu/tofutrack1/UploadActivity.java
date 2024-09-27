@@ -19,9 +19,11 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,6 +39,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 public class UploadActivity extends AppCompatActivity {
@@ -44,11 +47,13 @@ public class UploadActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ImageView uploadImage;
     private Button saveButton;
-    private EditText uploadProd, uploadDesc, uploadGroup, uploadQty, uploadCost;
+    private EditText uploadProd, uploadDesc, uploadQty, uploadCost;
+    private Spinner unitTypeSpinner;  // Spinner for selecting unit type
+    private Spinner groupSpinner;      // Spinner for selecting product group
     private String imageURL;
     private Uri uri;
     private String uniqueImageName;
-    private String productId;  // New field for product ID
+    private int productId;  // Changed productId to int
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +71,22 @@ public class UploadActivity extends AppCompatActivity {
         uploadImage = findViewById(R.id.uploadImage);
         uploadProd = findViewById(R.id.uploadProd);
         uploadDesc = findViewById(R.id.uploadDesc);
-        uploadGroup = findViewById(R.id.uploadGroup);
         uploadQty = findViewById(R.id.uploadQty);
         uploadCost = findViewById(R.id.uploadCost);
         saveButton = findViewById(R.id.saveButton);
+
+        // Initialize Spinners
+        unitTypeSpinner = findViewById(R.id.unitTypeSpinner);  // Spinner for selecting unit type
+        groupSpinner = findViewById(R.id.uploadGroupSpinner);    // Spinner for selecting product group
+
+        // Set up adapters for Spinners
+        ArrayAdapter<CharSequence> unitTypeAdapter = ArrayAdapter.createFromResource(this, R.array.unit_types, android.R.layout.simple_spinner_item);
+        unitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        unitTypeSpinner.setAdapter(unitTypeAdapter);
+
+        ArrayAdapter<CharSequence> groupAdapter = ArrayAdapter.createFromResource(this, R.array.product_groups, android.R.layout.simple_spinner_item);
+        groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        groupSpinner.setAdapter(groupAdapter);
 
         // Set up ActivityResultLauncher for image picking
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
@@ -102,9 +119,10 @@ public class UploadActivity extends AppCompatActivity {
     private void saveData() {
         String prodName = uploadProd.getText().toString().trim();
         String prodDesc = uploadDesc.getText().toString().trim();
-        String prodGroup = uploadGroup.getText().toString().trim();
+        String prodGroup = groupSpinner.getSelectedItem().toString(); // Get selected product group from Spinner
         String prodQtyStr = uploadQty.getText().toString().trim();
         String prodCostStr = uploadCost.getText().toString().trim();
+        String prodUnitType = unitTypeSpinner.getSelectedItem().toString();  // Get selected unit type
 
         // Set prodDesc to "N/A" if it's empty
         if (prodDesc.isEmpty()) {
@@ -122,21 +140,27 @@ public class UploadActivity extends AppCompatActivity {
         double prodCost = Double.parseDouble(prodCostStr);
         double prodTotalPrice = prodQty * prodCost; // Calculate total price
 
-        // Generate a unique productId
-        productId = UUID.randomUUID().toString();
+        // Generate a random integer productId
+        productId = generateRandomProductId();
 
         // Check for network connectivity
         if (isNetworkAvailable()) {
             // If network is available, upload image and data to Firestore
-            uploadImageToFirebase(uri, productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice);
+            uploadImageToFirebase(uri, productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, prodUnitType);
         } else {
             // Show a toast indicating that an internet connection is required
             Toast.makeText(UploadActivity.this, "An internet connection is required to add a product", Toast.LENGTH_SHORT).show();
         }
     }
 
+    // Function to generate a random product ID
+    private int generateRandomProductId() {
+        Random random = new Random();
+        return random.nextInt(100000); // Generates a random ID between 0 and 99999
+    }
+
     // Upload image to Firebase Storage
-    private void uploadImageToFirebase(Uri uri, String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice) {
+    private void uploadImageToFirebase(Uri uri, int productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String prodUnitType) {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference()
                 .child("ProductImages")
                 .child(uniqueImageName);
@@ -150,7 +174,7 @@ public class UploadActivity extends AppCompatActivity {
         storageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
             taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(uri1 -> {
                 imageURL = uri1.toString();
-                addDataToFirestore(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL);
+                addDataToFirestore(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, prodUnitType);
                 dialog.dismiss();
 
                 // Return result to InventoryActivity indicating success
@@ -167,36 +191,16 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     // Function to add data to Firestore
-    private void addDataToFirestore(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL) {
+    private void addDataToFirestore(int productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String imageURL, String prodUnitType) {
         Date dateAdded = new Date(); // Set the current date and time
 
-        DataClass data = new DataClass(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded);
+        DataClass data = new DataClass(productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, imageURL, dateAdded, prodUnitType);
 
         db.collection("products").add(data).addOnSuccessListener(documentReference -> {
             Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
         }).addOnFailureListener(e -> {
             Log.w("Firestore", "Error adding document", e);
         });
-    }
-
-    // Function to save image locally with unique name *FOR FUTURE USE*
-    private void saveImageLocally(Uri uri, String uniqueImageName) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            File file = new File(getCacheDir(), uniqueImageName + ".jpg");
-            OutputStream outputStream = new FileOutputStream(file);
-
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, length);
-            }
-
-            outputStream.close();
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     // Check if network is available
@@ -207,9 +211,9 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     // Schedule image upload task when network is available *FOR FUTURE USE*
-    private void scheduleImageUploadTask(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String uniqueImageName) {
+    private void scheduleImageUploadTask(int productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String uniqueImageName) {
         Data inputData = new Data.Builder()
-                .putString("productId", productId)  // Add productId to input data
+                .putInt("productId", productId)  // Change to putInt for productId
                 .putString("prodName", prodName)
                 .putString("prodDesc", prodDesc)
                 .putString("prodGroup", prodGroup)
@@ -228,5 +232,4 @@ public class UploadActivity extends AppCompatActivity {
 
         WorkManager.getInstance(this).enqueue(uploadWorkRequest);
     }
-
 }

@@ -2,8 +2,8 @@ package com.hideruu.tofutrack1;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +19,8 @@ import java.util.List;
 
 public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.InventoryViewHolder> {
 
-    private List<DataClass> productList;
+    private static final String TAG = "InventoryAdapter";
+    private final List<DataClass> productList;
 
     public InventoryAdapter(List<DataClass> productList) {
         this.productList = productList;
@@ -37,13 +38,12 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         DataClass product = productList.get(position);
 
         // Log product ID
-        Log.d("InventoryAdapter", "Product ID: " + product.getProductId());
+        Log.d(TAG, "Product ID: " + product.getProductId());
 
         // Set product details to views
         holder.prodName.setText(product.getProdName());
-        holder.prodDesc.setText("Description: " + product.getProdDesc());
         holder.prodGroup.setText("Group: " + product.getProdGroup());
-        holder.prodQty.setText("Quantity: " + product.getProdQty());
+        holder.prodQty.setText("Quantity: " + product.getProdQty() + " " + product.getProdUnitType()); // Add unit type
         holder.prodCost.setText("Cost per unit: ₱" + String.format("%.2f", product.getProdCost()));
         holder.prodTotalPrice.setText("Total: ₱" + String.format("%.2f", product.getProdTotalPrice()));
 
@@ -60,6 +60,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
             intent.putExtra("prodDesc", product.getProdDesc());
             intent.putExtra("prodGroup", product.getProdGroup());
             intent.putExtra("prodQty", product.getProdQty());
+            intent.putExtra("prodUnitType", product.getProdUnitType()); // Pass unit type to DetailActivity
             intent.putExtra("prodCost", product.getProdCost());
             intent.putExtra("prodTotalPrice", product.getProdTotalPrice());
             intent.putExtra("prodImage", product.getDataImage());
@@ -69,11 +70,10 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
             if (context instanceof Activity) {
                 ((Activity) context).startActivityForResult(intent, InventoryActivity.REQUEST_CODE_DELETE);
             } else {
-                Log.e("InventoryAdapter", "Context is not an Activity");
+                Log.e(TAG, "Context is not an Activity");
             }
         });
     }
-
 
     @Override
     public int getItemCount() {
@@ -82,7 +82,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
 
     public static class InventoryViewHolder extends RecyclerView.ViewHolder {
 
-        TextView prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice;
+        TextView prodName, prodGroup, prodQty, prodCost, prodTotalPrice;
         ImageView prodImage;
 
         public InventoryViewHolder(@NonNull View itemView) {
@@ -90,7 +90,6 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
 
             // Initialize views
             prodName = itemView.findViewById(R.id.prodName);
-            prodDesc = itemView.findViewById(R.id.prodDesc);
             prodGroup = itemView.findViewById(R.id.prodGroup);
             prodQty = itemView.findViewById(R.id.prodQty);
             prodCost = itemView.findViewById(R.id.prodCost);

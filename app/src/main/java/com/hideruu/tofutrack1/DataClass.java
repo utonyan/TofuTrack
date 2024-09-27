@@ -5,7 +5,7 @@ import java.util.Date;
 
 @IgnoreExtraProperties
 public class DataClass {
-    private String productId;  // New product ID field
+    private int productId;  // Changed productId to int
     private String prodName;
     private String prodDesc;
     private String prodGroup;
@@ -14,13 +14,14 @@ public class DataClass {
     private double prodTotalPrice;
     private String dataImage;
     private Date dateAdded;  // Field to track the date when the product was added
+    private String prodUnitType;  // New unit type field
 
     // Default constructor required for calls to DataSnapshot.getValue(DataClass.class)
     public DataClass() {
     }
 
-    // Parameterized constructor including productId
-    public DataClass(String productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String dataImage, Date dateAdded) {
+    // Parameterized constructor including prodUnitType
+    public DataClass(int productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String dataImage, Date dateAdded, String prodUnitType) {
         this.productId = productId;
         this.prodName = prodName;
         this.prodDesc = prodDesc;
@@ -30,10 +31,11 @@ public class DataClass {
         this.prodTotalPrice = prodTotalPrice;
         this.dataImage = dataImage;
         this.dateAdded = dateAdded;
+        this.prodUnitType = prodUnitType;
     }
 
     // Getters
-    public String getProductId() {
+    public int getProductId() {
         return productId;
     }
 
@@ -69,8 +71,12 @@ public class DataClass {
         return dateAdded;
     }
 
+    public String getProdUnitType() {
+        return prodUnitType;
+    }
+
     // Setters
-    public void setProductId(String productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
     }
 
@@ -104,5 +110,9 @@ public class DataClass {
 
     public void setDateAdded(Date dateAdded) {
         this.dateAdded = dateAdded;
+    }
+
+    public void setProdUnitType(String prodUnitType) {
+        this.prodUnitType = prodUnitType;
     }
 }

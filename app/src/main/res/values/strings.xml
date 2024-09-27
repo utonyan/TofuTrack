@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">TofuTrack</string>
+
+    <string-array name="unit_types">
+        <item>pc/pcs</item>
+        <item>kg</item>
+        <item>g</item>
+        <item>lbs</item>
+        <item>oz</item>
+        <item>liters</item>
+        <item>ml</item>
+    </string-array>
+
+    <string-array name="product_groups">
+        <item>Product</item>
+        <item>Raw Material</item>
+        <item>Cleaning Material</item>
+        <item>Packaging</item>
+    </string-array>
 </resources>

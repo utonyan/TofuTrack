@@ -18,6 +18,9 @@
         android:theme="@style/Theme.TofuTrack1"
         tools:targetApi="31">
         <activity
+            android:name=".UpdateActivity"
+            android:exported="false" />
+        <activity
             android:name=".DetailActivity"
             android:exported="false" />
         <activity

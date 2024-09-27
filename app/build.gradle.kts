@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
-
 }
 
 android {
@@ -27,6 +26,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -34,13 +34,11 @@ android {
 }
 
 dependencies {
-
-    implementation ("androidx.work:work-runtime:2.8.1") // Use the latest version
-
-    implementation ("com.google.firebase:firebase-database:20.0.")
-    implementation ("com.google.firebase:firebase-storage:20.0.0")
-    implementation("com.google.firebase:firebase-analytics")
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("androidx.work:work-runtime:2.8.1") // Use the latest version
+    implementation("com.google.firebase:firebase-database:20.3.0") // Specify a complete version
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("com.google.firebase:firebase-analytics:21.1.0") // Specify version
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2")) // BOM for version management
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation(libs.appcompat)
@@ -50,11 +48,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation ("com.github.clans:fab:1.6.4")
-
-    implementation ("com.github.bumptech.glide:glide:4.14.2")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.14.2")
-    implementation ("com.github.clans:fab:1.6.4")
+    implementation("com.github.clans:fab:1.6.4") // Keep only one entry
+    implementation("com.github.bumptech.glide:glide:4.14.2")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
     implementation("com.google.firebase:firebase-appcheck-playintegrity")
-
 }
