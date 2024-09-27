@@ -8,10 +8,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.Glide;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -82,7 +84,7 @@ public class UpdateActivity extends AppCompatActivity {
 
             // Populate fields
             uploadProd.setText(productName);
-            uploadDesc.setText(desc);
+            uploadDesc.setText(desc != null ? desc : ""); // Set the description directly
             uploadQty.setText(String.valueOf(qty));
             uploadCost.setText(String.format(Locale.getDefault(), "%.2f", cost));
 

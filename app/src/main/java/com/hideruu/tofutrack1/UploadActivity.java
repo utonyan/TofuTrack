@@ -145,8 +145,17 @@ public class UploadActivity extends AppCompatActivity {
 
         // Check for network connectivity
         if (isNetworkAvailable()) {
-            // If network is available, upload image and data to Firestore
-            uploadImageToFirebase(uri, productId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, prodUnitType);
+            // Check for duplicate product name
+            String finalProdDesc = prodDesc;
+            checkDuplicateProduct(prodName, prodId -> {
+                if (prodId == null) {
+                    // If no duplicate found, upload image and data to Firestore
+                    uploadImageToFirebase(uri, productId, prodName, finalProdDesc, prodGroup, prodQty, prodCost, prodTotalPrice, prodUnitType);
+                } else {
+                    // Show a toast indicating that the product already exists
+                    Toast.makeText(UploadActivity.this, "Product with this name already exists.", Toast.LENGTH_SHORT).show();
+                }
+            });
         } else {
             // Show a toast indicating that an internet connection is required
             Toast.makeText(UploadActivity.this, "An internet connection is required to add a product", Toast.LENGTH_SHORT).show();
@@ -157,6 +166,26 @@ public class UploadActivity extends AppCompatActivity {
     private int generateRandomProductId() {
         Random random = new Random();
         return random.nextInt(100000); // Generates a random ID between 0 and 99999
+    }
+
+    // Check for duplicate product name in Firestore
+    private void checkDuplicateProduct(String prodName, OnDuplicateCheckListener listener) {
+        db.collection("products")
+                .whereEqualTo("prodName", prodName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        // No duplicate found
+                        listener.onDuplicateCheck(null);
+                    } else {
+                        // Duplicate found
+                        listener.onDuplicateCheck("duplicate");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("UploadActivity", "Error checking for duplicates", e);
+                    listener.onDuplicateCheck(null);
+                });
     }
 
     // Upload image to Firebase Storage
@@ -231,5 +260,10 @@ public class UploadActivity extends AppCompatActivity {
                 .build();
 
         WorkManager.getInstance(this).enqueue(uploadWorkRequest);
+    }
+
+    // Interface for duplicate check callback
+    private interface OnDuplicateCheckListener {
+        void onDuplicateCheck(String prodId);
     }
 }
