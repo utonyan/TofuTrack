@@ -1,5 +1,7 @@
 package com.hideruu.tofutrack1;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -161,6 +163,9 @@ public class UpdateActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(UpdateActivity.this, "Product updated successfully", Toast.LENGTH_SHORT).show();
 
+                    // Now save the update record to a new collection
+                    recordUpdate(prodName, prodQty, prodCost, prodUnitType, prodGroup); // Pass the new parameters
+
                     // Set the result to RESULT_OK and finish the activity
                     setResult(RESULT_OK); // This will notify InventoryActivity
                     finish(); // Close activity
@@ -170,5 +175,34 @@ public class UpdateActivity extends AppCompatActivity {
                     Log.e(TAG, "Error updating product: ", e);
                 });
     }
+
+
+    private void recordUpdate(String prodName, int prodQty, double prodCost, String prodUnitType, String prodGroup) {
+        // Create a new record with the current date and time
+        Map<String, Object> updateRecord = new HashMap<>();
+        updateRecord.put("prodName", prodName);
+        updateRecord.put("prodQty", prodQty);
+        updateRecord.put("prodCost", prodCost);
+        updateRecord.put("prodUnitType", prodUnitType); // Add product unit type
+        updateRecord.put("prodGroup", prodGroup); // Add product group
+
+        // Format the current date and time
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String formattedDate = sdf.format(new Date()); // Format current date
+
+        updateRecord.put("timestamp", formattedDate); // Add the formatted date to the record
+
+        // Add a new document to the product_updates collection
+        db.collection("product_updates")
+                .add(updateRecord)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Update record added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(UpdateActivity.this, "Error recording update: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error recording update: ", e);
+                });
+    }
+
 
 }
