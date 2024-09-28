@@ -31,6 +31,7 @@ public class InventoryActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private InventoryAdapter adapter;
     private List<DataClass> productList;
+    private List<DataClass> originalProductList; // Store original product list
     private ProgressBar progressBar;
     private FirebaseFirestore db;
     private SearchView searchView;
@@ -54,6 +55,7 @@ public class InventoryActivity extends AppCompatActivity {
 
         // Initialize product list and adapter
         productList = new ArrayList<>();
+        originalProductList = new ArrayList<>(); // Initialize the original product list
         adapter = new InventoryAdapter(productList);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(adapter);
@@ -85,7 +87,14 @@ public class InventoryActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
-                    fetchData(); // Load all data when no query is entered
+                    // When search text is empty, reload original product list and filter by selected group
+                    if (currentlySelectedGroup != null && !currentlySelectedGroup.isEmpty()) {
+                        productList.clear(); // Clear current product list
+                        productList.addAll(originalProductList); // Load original products
+                        filterProductsByGroup(currentlySelectedGroup); // Filter by selected group
+                    } else {
+                        fetchData(); // Load all data if no group is selected
+                    }
                 } else {
                     searchProducts(newText);
                 }
@@ -101,9 +110,11 @@ public class InventoryActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         productList.clear();
+                        originalProductList.clear(); // Clear original product list
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass product = document.toObject(DataClass.class);
                             productList.add(product);
+                            originalProductList.add(product); // Add to original list as well
                         }
                         adapter.notifyDataSetChanged();
                     } else {
@@ -123,9 +134,11 @@ public class InventoryActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     productList.clear();
+                    originalProductList.clear(); // Clear original product list
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         DataClass product = document.toObject(DataClass.class);
                         productList.add(product);
+                        originalProductList.add(product); // Add to original list as well
                     }
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
@@ -139,27 +152,25 @@ public class InventoryActivity extends AppCompatActivity {
     private void searchProducts(String query) {
         progressBar.setVisibility(View.VISIBLE);
         String queryLower = query.toLowerCase();
-        db.collection("products")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    productList.clear();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        DataClass product = document.toObject(DataClass.class);
-                        if (product.getProdName().toLowerCase().contains(queryLower) ||
-                                product.getProdGroup().toLowerCase().contains(queryLower) ||
-                                String.valueOf(product.getProdQty()).toLowerCase().contains(queryLower) ||
-                                String.valueOf(product.getProdCost()).toLowerCase().contains(queryLower) ||
-                                String.valueOf(product.getProdTotalPrice()).toLowerCase().contains(queryLower)) {
-                            productList.add(product); // Add matching products
-                        }
-                    }
-                    adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error searching products", e);
-                    progressBar.setVisibility(View.GONE);
-                });
+        List<DataClass> searchResults = new ArrayList<>();
+
+        for (DataClass product : productList) {
+            boolean matchesGroup = currentlySelectedGroup == null || currentlySelectedGroup.isEmpty() || product.getProdGroup().equalsIgnoreCase(currentlySelectedGroup);
+            boolean matchesQuery = product.getProdName().toLowerCase().contains(queryLower) ||
+                    product.getProdGroup().toLowerCase().contains(queryLower) ||
+                    String.valueOf(product.getProdQty()).toLowerCase().contains(queryLower) ||
+                    String.valueOf(product.getProdCost()).toLowerCase().contains(queryLower) ||
+                    String.valueOf(product.getProdTotalPrice()).toLowerCase().contains(queryLower);
+
+            if (matchesGroup && matchesQuery) {
+                searchResults.add(product); // Add matching products
+            }
+        }
+
+        productList.clear();
+        productList.addAll(searchResults);
+        adapter.notifyDataSetChanged();
+        progressBar.setVisibility(View.GONE);
     }
 
     private void showGroupSelectionDialog() {

@@ -39,16 +39,27 @@ public class UpdateRecordsActivity extends AppCompatActivity {
 
         // Initialize SearchView
         SearchView searchView = findViewById(R.id.searchView);
+        searchView.setEnabled(false); // Disable the SearchView initially
+
+        // Set a listener for the SearchView
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                filterRecords(query); // Filter products within the selected date
+                if (!selectedDate.isEmpty()) {
+                    filterRecords(query); // Filter products within the selected date
+                } else {
+                    Toast.makeText(UpdateRecordsActivity.this, "Please select a date first.", Toast.LENGTH_SHORT).show();
+                }
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filterRecords(newText); // Filter products as the text changes
+                if (!selectedDate.isEmpty()) {
+                    filterRecords(newText); // Filter products as the text changes
+                } else {
+                    Toast.makeText(UpdateRecordsActivity.this, "Please select a date first.", Toast.LENGTH_SHORT).show();
+                }
                 return false;
             }
         });
@@ -115,6 +126,9 @@ public class UpdateRecordsActivity extends AppCompatActivity {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
             selectedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay); // Store the selected date
+            // Enable the SearchView after a date is selected
+            SearchView searchView = findViewById(R.id.searchView);
+            searchView.setEnabled(true); // Enable the SearchView
             filterRecords(""); // Filter records for the selected date with no query initially
         }, year, month, day);
 
