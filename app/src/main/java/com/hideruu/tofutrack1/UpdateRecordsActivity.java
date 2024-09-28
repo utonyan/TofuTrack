@@ -90,6 +90,7 @@ public class UpdateRecordsActivity extends AppCompatActivity {
                         recyclerView.setAdapter(adapter);
                     } else {
                         // Handle errors here
+                        Toast.makeText(UpdateRecordsActivity.this, "Error loading records.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -103,15 +104,18 @@ public class UpdateRecordsActivity extends AppCompatActivity {
 
         List<UpdateRecord> filteredList = new ArrayList<>();
         for (UpdateRecord record : updateRecords) {
-            // First check if the record's timestamp matches the selected date
+            // Check if the record's timestamp matches the selected date
             if (record.getTimestamp().startsWith(selectedDate)) {
-                // Then check if the query matches any product fields (case-insensitive)
+                // Check if the query matches any product fields (case-insensitive)
                 if (record.getProdName().toLowerCase().contains(query.toLowerCase()) ||
                         record.getProdGroup().toLowerCase().contains(query.toLowerCase())) {
                     filteredList.add(record);
                 }
             }
         }
+
+        // Sort the filtered list in descending order by timestamp
+        filteredList.sort((record1, record2) -> record2.getTimestamp().compareTo(record1.getTimestamp())); // Latest first
 
         filteredRecords = filteredList; // Update filtered records
         adapter.updateRecords(filteredRecords); // Notify adapter about the filtered data
