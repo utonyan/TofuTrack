@@ -3,6 +3,7 @@ package com.hideruu.tofutrack1;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog; // Import AlertDialog
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,29 +13,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import androidx.appcompat.widget.SearchView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_UPLOAD = 1;
-    public static final int REQUEST_CODE_DELETE = 2; // Add this in InventoryActivity
+    public static final int REQUEST_CODE_DELETE = 2;
     private static final int REQUEST_CODE_UPDATE = 3;
 
-
     private FloatingActionButton fab;
+    private FloatingActionButton filterFab;
     private RecyclerView recyclerView;
     private InventoryAdapter adapter;
     private List<DataClass> productList;
     private ProgressBar progressBar;
-
     private FirebaseFirestore db;
     private SearchView searchView;
+    private String currentlySelectedGroup; // Variable to track currently selected group
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,63 +46,44 @@ public class InventoryActivity extends AppCompatActivity {
 
         // Initialize UI components
         fab = findViewById(R.id.fab);
+        filterFab = findViewById(R.id.fab_filter);
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         searchView = findViewById(R.id.searchView);
         fab.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
 
-
         // Initialize product list and adapter
         productList = new ArrayList<>();
         adapter = new InventoryAdapter(productList);
-
-        // Set layout manager to GridLayoutManager
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(adapter);
 
         // FloatingActionButton to open UploadActivity for adding a new product
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(InventoryActivity.this, UploadActivity.class);
-                startActivityForResult(intent, REQUEST_CODE_UPLOAD);
-            }
+        fab.setOnClickListener(view -> {
+            Intent intent = new Intent(InventoryActivity.this, UploadActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_UPLOAD);
         });
 
-        // Set up SearchView
+        // Setup SearchView
         setupSearchView();
 
         // Fetch data from Firestore
         fetchData();
+
+        // Set up filter FAB
+        filterFab.setOnClickListener(view -> showGroupSelectionDialog()); // Show dialog on click
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
-            fetchData(); // Reload data when coming back from UploadActivity
-        } else if (requestCode == REQUEST_CODE_DELETE && resultCode == RESULT_OK) {
-            fetchData(); // Reload data when coming back after deletion
-        } else if (requestCode == REQUEST_CODE_UPDATE && resultCode == RESULT_OK) {
-            fetchData(); // Reload data when coming back from UpdateActivity
-        }
-    }
-
-
 
     private void setupSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // Trigger the search when the user submits a query
                 searchProducts(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Trigger search as the user types
                 if (newText.isEmpty()) {
                     fetchData(); // Load all data when no query is entered
                 } else {
@@ -113,77 +94,23 @@ public class InventoryActivity extends AppCompatActivity {
         });
     }
 
-    private void searchProducts(String query) {
-        progressBar.setVisibility(View.VISIBLE);
-
-        // Convert query to lowercase for case-insensitive search
-        String queryLower = query.toLowerCase();
-
-        // Fetch all products from Firestore
-        db.collection("products")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    productList.clear(); // Clear the current list
-
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        DataClass product = document.toObject(DataClass.class);
-
-                        // Convert fields to lowercase and check if they contain the query
-                        boolean matches = false;
-                        if (product.getProdName().toLowerCase().contains(queryLower) ||
-                                product.getProdGroup().toLowerCase().contains(queryLower) ||
-                                String.valueOf(product.getProdQty()).toLowerCase().contains(queryLower) ||
-                                String.valueOf(product.getProdCost()).toLowerCase().contains(queryLower) ||
-                                String.valueOf(product.getProdTotalPrice()).toLowerCase().contains(queryLower)) {
-                            matches = true;
-                        }
-
-                        if (matches) {
-                            productList.add(product); // Add matching products
-                        }
-                    }
-
-                    adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error searching products", e);
-                    progressBar.setVisibility(View.GONE);
-                });
-    }
-
-
-    private boolean matchesQuery(DataClass product, String query) {
-        String lowerCaseQuery = query.toLowerCase();
-
-        // Check if any field matches the query
-        return product.getProdName().toLowerCase().contains(lowerCaseQuery) ||
-                product.getProdGroup().toLowerCase().contains(lowerCaseQuery) ||
-                String.valueOf(product.getProdQty()).contains(lowerCaseQuery) ||
-                String.valueOf(product.getProdCost()).contains(lowerCaseQuery);
-    }
-
     private void fetchData() {
         progressBar.setVisibility(View.VISIBLE);
-
-        // Fetch all products if no search is active
         db.collection("products")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         productList.clear();
-
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass product = document.toObject(DataClass.class);
                             productList.add(product);
                         }
-
                         adapter.notifyDataSetChanged();
-                        progressBar.setVisibility(View.GONE);
                     } else {
                         Log.d("Firestore", "No data found in cache, fetching from server...");
                         fetchDataFromServer();
                     }
+                    progressBar.setVisibility(View.GONE);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Firestore", "Error loading data", e);
@@ -196,15 +123,12 @@ public class InventoryActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     productList.clear();
-
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         DataClass product = document.toObject(DataClass.class);
                         productList.add(product);
                     }
-
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
-
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Firestore", "Error loading data from server", e);
@@ -212,4 +136,81 @@ public class InventoryActivity extends AppCompatActivity {
                 });
     }
 
+    private void searchProducts(String query) {
+        progressBar.setVisibility(View.VISIBLE);
+        String queryLower = query.toLowerCase();
+        db.collection("products")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    productList.clear();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        DataClass product = document.toObject(DataClass.class);
+                        if (product.getProdName().toLowerCase().contains(queryLower) ||
+                                product.getProdGroup().toLowerCase().contains(queryLower) ||
+                                String.valueOf(product.getProdQty()).toLowerCase().contains(queryLower) ||
+                                String.valueOf(product.getProdCost()).toLowerCase().contains(queryLower) ||
+                                String.valueOf(product.getProdTotalPrice()).toLowerCase().contains(queryLower)) {
+                            productList.add(product); // Add matching products
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                    progressBar.setVisibility(View.GONE);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error searching products", e);
+                    progressBar.setVisibility(View.GONE);
+                });
+    }
+
+    private void showGroupSelectionDialog() {
+        String[] productGroups = getResources().getStringArray(R.array.product_groups);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Select Product Group")
+                .setItems(productGroups, (dialog, which) -> {
+                    String selectedGroup = productGroups[which];
+
+                    // Check if a group is already selected
+                    if (currentlySelectedGroup != null && !currentlySelectedGroup.isEmpty()) {
+                        // Inform the user they need to reset before changing the filter
+                        new AlertDialog.Builder(this)
+                                .setTitle("Active Filter")
+                                .setMessage("Please reset the current filter before selecting a new one.")
+                                .setPositiveButton("OK", (resetDialog, resetWhich) -> resetDialog.dismiss())
+                                .show();
+                    } else {
+                        currentlySelectedGroup = selectedGroup; // Update the currently selected group
+                        filterProductsByGroup(selectedGroup); // Filter by new group
+                    }
+                })
+                .setPositiveButton("Reset Filters", (dialog, which) -> {
+                    fetchData(); // Reset the filters by reloading all products
+                    currentlySelectedGroup = null; // Clear the currently selected group
+                })
+                .show();
+    }
+
+    private void filterProductsByGroup(String selectedGroup) {
+        progressBar.setVisibility(View.VISIBLE); // Show progress bar
+        List<DataClass> filteredList = new ArrayList<>();
+        for (DataClass product : productList) {
+            if (product.getProdGroup().equalsIgnoreCase(selectedGroup)) {
+                filteredList.add(product); // Add matching products
+            }
+        }
+        adapter.updateProductList(filteredList); // Update the adapter with the filtered list
+        progressBar.setVisibility(View.GONE); // Hide progress bar
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back from UploadActivity
+        } else if (requestCode == REQUEST_CODE_DELETE && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back after deletion
+        } else if (requestCode == REQUEST_CODE_UPDATE && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back from UpdateActivity
+        }
+    }
 }

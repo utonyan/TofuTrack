@@ -7,21 +7,22 @@
         android:id="@+id/search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <!-- SearchView added -->
-    <androidx.appcompat.widget.SearchView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:id="@+id/searchView"
-        app:iconifiedByDefault="false"
-        app:searchHintIcon="@null"
-        app:queryHint="Search..."
-        android:focusable="false"
-        android:elevation="5dp"
-        android:background="@drawable/lavender_border"/>
+
+        <!-- SearchView added -->
+        <androidx.appcompat.widget.SearchView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:id="@+id/searchView"
+            app:iconifiedByDefault="false"
+            app:searchHintIcon="@null"
+            app:queryHint="Search..."
+            android:focusable="false"
+            android:elevation="5dp"
+            android:background="@drawable/lavender_border"/>
 
     </RelativeLayout>
 
@@ -33,23 +34,42 @@
         android:backgroundTint="@color/my_primary"
         android:visibility="gone" />
 
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/search"
-       />
+        android:layout_below="@id/search"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/floatingActionMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_margin="15dp"
-        android:src="@drawable/add"
-        android:backgroundTint="@color/my_primary" />
+        app:menu_fab_size="normal"
+        app:menu_colorPressed="@color/my_primary"
+        app:menu_colorNormal="@color/my_primary"
+        app:menu_icon="@drawable/baseline_format_list_bulleted_24"
+        app:menu_openDirection="up"
+        app:menu_showShadow="true">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_filter_list_24"
+            app:fab_showShadow="true"
+            app:fab_colorNormal="@color/ryo"
+            app:fab_size="mini"/>
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add"
+            app:fab_showShadow="true"
+            app:fab_colorNormal="@color/nijika"
+            app:fab_size="mini"/>
+    </com.github.clans.fab.FloatingActionMenu>
 
 </RelativeLayout>

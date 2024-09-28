@@ -1,5 +1,10 @@
 package com.hideruu.tofutrack1;
 
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import android.content.Intent;
@@ -87,7 +92,6 @@ public class UpdateActivity extends AppCompatActivity {
             // Populate fields
             uploadProd.setText(productName);
             uploadDesc.setText(desc != null ? desc : "");
-            // Set the description directly
             uploadQty.setText(String.valueOf(qty));
             uploadCost.setText(String.format(Locale.getDefault(), "%.2f", cost));
 
@@ -107,6 +111,11 @@ public class UpdateActivity extends AppCompatActivity {
     }
 
     private void updateData() {
+        if (!isNetworkAvailable()) {
+            Toast.makeText(UpdateActivity.this, "No internet connection. Please try again later.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String prodName = uploadProd.getText().toString().trim();
         String prodDesc = uploadDesc.getText().toString().trim();
         String prodGroup = groupSpinner.getSelectedItem().toString();
@@ -114,8 +123,16 @@ public class UpdateActivity extends AppCompatActivity {
         String prodCostStr = uploadCost.getText().toString().trim();
         String prodUnitType = unitTypeSpinner.getSelectedItem().toString();
 
-        if (prodName.isEmpty() || prodGroup.isEmpty() || prodQtyStr.isEmpty() || prodCostStr.isEmpty()) {
-            Toast.makeText(UpdateActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+        // Check for empty fields, allowing "N/A" for description
+        if (prodName.isEmpty() || prodGroup.isEmpty() || prodQtyStr.isEmpty() || prodCostStr.isEmpty() ||
+                (prodDesc.isEmpty() && !prodDesc.equals("N/A"))) {
+            Toast.makeText(UpdateActivity.this, "Please fill all fields (Description can be 'N/A')", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate that description is "N/A" or a valid string
+        if (!prodDesc.equals("N/A") && prodDesc.isEmpty()) {
+            Toast.makeText(UpdateActivity.this, "Description cannot be empty, use 'N/A' if not applicable", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -176,7 +193,6 @@ public class UpdateActivity extends AppCompatActivity {
                 });
     }
 
-
     private void recordUpdate(String prodName, int prodQty, double prodCost, String prodUnitType, String prodGroup) {
         // Create a new record with the current date and time
         Map<String, Object> updateRecord = new HashMap<>();
@@ -204,5 +220,10 @@ public class UpdateActivity extends AppCompatActivity {
                 });
     }
 
-
+    // Check network connectivity
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 }

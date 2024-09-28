@@ -97,4 +97,9 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
             prodImage = itemView.findViewById(R.id.prodImage);
         }
     }
+    public void updateProductList(List<DataClass> newProductList) {
+        this.productList.clear();
+        this.productList.addAll(newProductList);
+        notifyDataSetChanged(); // Notify the adapter of data changes
+    }
 }

@@ -12,5 +12,8 @@
 
     <color name="skyblue">#FD1846</color>
     <color name="transparent_black">#80000000</color>
+    <color name="bocchi">#FF77B7</color>
+    <color name="nijika">#FFF27B</color>
+    <color name="ryo">#03A9F4</color>
 
 </resources>
