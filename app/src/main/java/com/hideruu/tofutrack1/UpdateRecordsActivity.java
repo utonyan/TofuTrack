@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton; // Import for FAB
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
@@ -19,11 +19,14 @@ public class UpdateRecordsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private UpdateRecordAdapter adapter;
     private List<UpdateRecord> updateRecords;
-    private List<UpdateRecord> filteredRecords; // To hold filtered records
+    private List<UpdateRecord> filteredRecords; // To hold records filtered by the selected date
     private FirebaseFirestore db;
 
     // Declare a FAB for the calendar
     private FloatingActionButton fab;
+
+    // Store the selected date
+    private String selectedDate = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +42,13 @@ public class UpdateRecordsActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                filterRecords(query);
+                filterRecords(query); // Filter products within the selected date
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filterRecords(newText);
+                filterRecords(newText); // Filter products as the text changes
                 return false;
             }
         });
@@ -72,7 +75,6 @@ public class UpdateRecordsActivity extends AppCompatActivity {
                             updateRecords.add(record);
                         }
                         filteredRecords = new ArrayList<>(updateRecords); // Initialize filtered records
-                        // Initialize and set the adapter
                         adapter = new UpdateRecordAdapter(filteredRecords);
                         recyclerView.setAdapter(adapter);
                     } else {
@@ -82,7 +84,26 @@ public class UpdateRecordsActivity extends AppCompatActivity {
     }
 
     private void filterRecords(String query) {
-        // Same filtering logic as before
+        if (selectedDate.isEmpty()) {
+            // If no date is selected, show a message or just return without filtering
+            Toast.makeText(this, "Please select a date first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<UpdateRecord> filteredList = new ArrayList<>();
+        for (UpdateRecord record : updateRecords) {
+            // First check if the record's timestamp matches the selected date
+            if (record.getTimestamp().startsWith(selectedDate)) {
+                // Then check if the query matches any product fields (case-insensitive)
+                if (record.getProdName().toLowerCase().contains(query.toLowerCase()) ||
+                        record.getProdGroup().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(record);
+                }
+            }
+        }
+
+        filteredRecords = filteredList; // Update filtered records
+        adapter.updateRecords(filteredRecords); // Notify adapter about the filtered data
     }
 
     // Method to show the date picker dialog
@@ -93,26 +114,10 @@ public class UpdateRecordsActivity extends AppCompatActivity {
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
-            String selectedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay);
-            filterRecordsByDate(selectedDate); // Call the method to filter records by date
+            selectedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay); // Store the selected date
+            filterRecords(""); // Filter records for the selected date with no query initially
         }, year, month, day);
 
         datePickerDialog.show();
-    }
-
-    // Method to filter records by selected date
-    private void filterRecordsByDate(String selectedDate) {
-        List<UpdateRecord> filteredList = new ArrayList<>();
-        for (UpdateRecord record : updateRecords) {
-            // Assuming timestamp is in "yyyy-MM-dd" format
-            if (record.getTimestamp().startsWith(selectedDate)) {
-                filteredList.add(record);
-            }
-        }
-        filteredRecords = filteredList; // Update filtered records
-        adapter.updateRecords(filteredRecords); // Update the adapter
-
-        // Optional: Show a toast message to confirm filtering
-        Toast.makeText(this, "Filtered by date: " + selectedDate, Toast.LENGTH_SHORT).show();
     }
 }
