@@ -54,6 +54,7 @@ public class DetailActivity extends AppCompatActivity {
             double cost = intent.getDoubleExtra("prodCost", 0.0);
             double totalPrice = intent.getDoubleExtra("prodTotalPrice", 0.0);
             String imageUrl = intent.getStringExtra("prodImage");
+            String unitType = intent.getStringExtra("prodUnitType"); // Get unit type from intent
 
             // Set data to views, handling potential null values
             prodName.setText(productName != null ? productName : "No Name");
@@ -61,7 +62,7 @@ public class DetailActivity extends AppCompatActivity {
             prodGroup.setText("Group: " + (group != null ? group : "No Group"));
 
             // Update prodQty with prodUnitType
-            prodQty.setText("Quantity: " + qty);
+            prodQty.setText("Quantity: " + qty + " " + (unitType != null ? unitType : "")); // Updated line
 
             prodCost.setText(String.format(Locale.getDefault(), "Cost per unit: ₱%.2f", cost));
             prodTotalPrice.setText(String.format(Locale.getDefault(), "Total Price: ₱%.2f", totalPrice));
@@ -84,9 +85,12 @@ public class DetailActivity extends AppCompatActivity {
                 intent.putExtra("prodQty", Integer.parseInt(prodQty.getText().toString().split(" ")[1])); // Assuming format "Quantity: 5"
                 intent.putExtra("prodCost", Double.parseDouble(prodCost.getText().toString().replace("Cost per unit: ₱", "").replace(",", "").trim()));
                 startActivity(intent);
+                setResult(RESULT_OK);
                 finish();
             }
         });
+
+
 
         // Handle delete button click
         findViewById(R.id.deleteButton).setOnClickListener(new View.OnClickListener() {
@@ -96,6 +100,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void confirmDelete() {
         new AlertDialog.Builder(this)

@@ -84,7 +84,8 @@ public class UpdateActivity extends AppCompatActivity {
 
             // Populate fields
             uploadProd.setText(productName);
-            uploadDesc.setText(desc != null ? desc : ""); // Set the description directly
+            uploadDesc.setText(desc != null ? desc : "");
+            // Set the description directly
             uploadQty.setText(String.valueOf(qty));
             uploadCost.setText(String.format(Locale.getDefault(), "%.2f", cost));
 
@@ -159,6 +160,9 @@ public class UpdateActivity extends AppCompatActivity {
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(UpdateActivity.this, "Product updated successfully", Toast.LENGTH_SHORT).show();
+
+                    // Set the result to RESULT_OK and finish the activity
+                    setResult(RESULT_OK); // This will notify InventoryActivity
                     finish(); // Close activity
                 })
                 .addOnFailureListener(e -> {
@@ -166,4 +170,5 @@ public class UpdateActivity extends AppCompatActivity {
                     Log.e(TAG, "Error updating product: ", e);
                 });
     }
+
 }

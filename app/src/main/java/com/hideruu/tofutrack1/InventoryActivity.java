@@ -24,7 +24,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_UPLOAD = 1;
     public static final int REQUEST_CODE_DELETE = 2; // Add this in InventoryActivity
-
+    private static final int REQUEST_CODE_UPDATE = 3;
 
 
     private FloatingActionButton fab;
@@ -79,12 +79,16 @@ public class InventoryActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
             fetchData(); // Reload data when coming back from UploadActivity
         } else if (requestCode == REQUEST_CODE_DELETE && resultCode == RESULT_OK) {
             fetchData(); // Reload data when coming back after deletion
+        } else if (requestCode == REQUEST_CODE_UPDATE && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back from UpdateActivity
         }
     }
+
 
 
     private void setupSearchView() {
