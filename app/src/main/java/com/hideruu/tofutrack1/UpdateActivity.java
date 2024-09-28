@@ -1,16 +1,13 @@
 package com.hideruu.tofutrack1;
 
-
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -21,10 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import android.widget.ArrayAdapter;
 
 public class UpdateActivity extends AppCompatActivity {
 
@@ -72,12 +70,12 @@ public class UpdateActivity extends AppCompatActivity {
         ArrayAdapter<CharSequence> unitTypeAdapter = ArrayAdapter.createFromResource(this,
                 R.array.unit_types, android.R.layout.simple_spinner_item);
         unitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        unitTypeSpinner.setAdapter(unitTypeAdapter);
+        unitTypeSpinner.setAdapter(unitTypeAdapter); // Enable spinner
 
         ArrayAdapter<CharSequence> groupAdapter = ArrayAdapter.createFromResource(this,
                 R.array.product_groups, android.R.layout.simple_spinner_item);
         groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        groupSpinner.setAdapter(groupAdapter);
+        groupSpinner.setAdapter(groupAdapter); // Enable spinner
     }
 
     private void getDataFromIntent() {
@@ -88,21 +86,34 @@ public class UpdateActivity extends AppCompatActivity {
             String group = intent.getStringExtra("prodGroup");
             int qty = intent.getIntExtra("prodQty", 0);
             double cost = intent.getDoubleExtra("prodCost", 0.0);
+            String unitType = intent.getStringExtra("prodUnitType");
+
+            // Log retrieved values for debugging
+            Log.d(TAG, "Retrieved Description: " + desc); // Log the description
 
             // Populate fields
             uploadProd.setText(productName);
-            uploadDesc.setText(desc != null ? desc : "");
+
+            // Set the description directly without modifications
+            if (desc != null) {
+                uploadDesc.setText(desc.replace("Description: ", "").trim()); // Remove "Description: " if it exists
+            } else {
+                uploadDesc.setText(""); // Set to empty if null
+            }
+
             uploadQty.setText(String.valueOf(qty));
             uploadCost.setText(String.format(Locale.getDefault(), "%.2f", cost));
 
             // Set spinner selections
             setSpinnerSelection(groupSpinner, group);
-            setSpinnerSelection(unitTypeSpinner, intent.getStringExtra("prodUnitType"));
+            setSpinnerSelection(unitTypeSpinner, unitType);
         }
     }
 
+
     private void setSpinnerSelection(Spinner spinner, String value) {
         if (value != null) {
+            // Check if the value exists in the spinner's adapter
             int position = ((ArrayAdapter<String>) spinner.getAdapter()).getPosition(value);
             if (position >= 0) {
                 spinner.setSelection(position);
@@ -209,21 +220,14 @@ public class UpdateActivity extends AppCompatActivity {
         updateRecord.put("timestamp", formattedDate); // Add the formatted date to the record
 
         // Add a new document to the product_updates collection
-        db.collection("product_updates")
-                .add(updateRecord)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, "Update record added with ID: " + documentReference.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(UpdateActivity.this, "Error recording update: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Error recording update: ", e);
-                });
+        db.collection("product_updates").add(updateRecord)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Update record added successfully."))
+                .addOnFailureListener(e -> Log.e(TAG, "Error adding update record: ", e));
     }
 
-    // Check network connectivity
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 }
