@@ -2,14 +2,8 @@ package com.hideruu.tofutrack1;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import android.view.View;
-import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -19,14 +13,24 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        CardView myCardView = findViewById(R.id.inventory_button);
-        myCardView.setOnClickListener(new View.OnClickListener() {
+        // Inventory button setup
+        CardView inventoryButton = findViewById(R.id.inventory_button);
+        inventoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle the click event
+                // Open InventoryActivity
                 startActivity(new Intent(DashboardActivity.this, InventoryActivity.class));
             }
+        });
 
+        // Records button setup
+        CardView recordsButton = findViewById(R.id.Records_button);
+        recordsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open UpdateRecords activity
+                startActivity(new Intent(DashboardActivity.this, UpdateRecordsActivity.class));
+            }
         });
     }
 }

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@android:color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Product Name -->
+        <TextView
+            android:id="@+id/tvProdName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvProdGroup"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- Product Group -->
+        <TextView
+            android:id="@+id/tvProdGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Group"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@+id/tvProdName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvProdQtyUnitType"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- Product Quantity and Unit Type Combined -->
+        <TextView
+            android:id="@+id/tvProdQtyUnitType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quantity: 0 Unit Type"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@+id/tvProdGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvProdCost"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- Product Cost -->
+        <TextView
+            android:id="@+id/tvProdCost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cost: $0.00"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@+id/tvProdQtyUnitType"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvTimestamp"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- Timestamp -->
+        <TextView
+            android:id="@+id/tvTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Timestamp: 2024-09-28 12:00:00"
+            android:textSize="12sp"
+            android:textColor="@android:color/holo_blue_light"
+            app:layout_constraintTop_toBottomOf="@+id/tvProdCost"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

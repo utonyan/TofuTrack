@@ -45,6 +45,10 @@
             android:name=".MainActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity android:name=".UpdateRecordsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".SplashActivity"
             android:exported="true"
