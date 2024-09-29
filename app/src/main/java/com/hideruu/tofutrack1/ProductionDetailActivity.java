@@ -100,7 +100,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
             int alarmQuantity = prefs.getInt(KEY_ALARM_QUANTITY, 0);
             alarmTimeDisplay.setText("Current Production: " + alarmTime + " for quantity: " + alarmQuantity);
         } else {
-            alarmTimeDisplay.setText("No active production set~ (U ω U❁)");
+            alarmTimeDisplay.setText("No active production alarm.");
         }
     }
 
