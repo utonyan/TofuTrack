@@ -34,22 +34,29 @@ android {
 }
 
 dependencies {
-    implementation("androidx.work:work-runtime:2.8.1") // Use the latest version
-    implementation("com.google.firebase:firebase-database:20.3.0") // Specify a complete version
-    implementation("com.google.firebase:firebase-storage:20.3.0")
-    implementation("com.google.firebase:firebase-analytics:21.1.0") // Specify version
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2")) // BOM for version management
-    implementation("com.google.firebase:firebase-auth")
+    // Firebase BOM for version management
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+
+    // Include Firebase services without specific versions
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+
+    // AndroidX and other libraries
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+    implementation("androidx.work:work-runtime:2.8.1") // Latest version
     implementation("com.github.clans:fab:1.6.4") // Keep only one entry
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
-    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+
+    // Testing libraries
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

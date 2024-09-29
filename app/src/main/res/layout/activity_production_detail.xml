@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@android:color/white">
+
+            <!-- Product Name -->
+            <TextView
+                android:id="@+id/prodName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product Name"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Product Description -->
+            <TextView
+                android:id="@+id/prodDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product Description"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Product Group -->
+            <TextView
+                android:id="@+id/prodGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product Group"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Product Quantity -->
+            <TextView
+                android:id="@+id/prodQty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product Quantity"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Product Cost -->
+            <TextView
+                android:id="@+id/prodCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product Cost"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Total Price -->
+            <TextView
+                android:id="@+id/prodTotalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Price"
+                android:textSize="16sp"
+                android:textColor="@android:color/holo_green_dark"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Alarm Time Display -->
+            <TextView
+                android:id="@+id/alarmTimeDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nothing scheduled yet~ (U ω U❁)"
+                android:textSize="18sp"
+                android:textColor="@android:color/holo_red_light"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Set Alarm Button -->
+            <Button
+                android:id="@+id/setAlarmButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Set Production"
+                android:textColor="@android:color/white"
+                android:background="@drawable/btn_rounded_corner"
+                android:layout_marginBottom="8dp"
+                android:padding="12dp"
+                app:cornerRadius="20dp" />
+
+            <!-- Cancel Alarm Button -->
+            <Button
+                android:id="@+id/cancelAlarmButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cancel Production"
+                android:textColor="@android:color/white"
+                android:background="@drawable/btn_rounded_corner"
+                android:layout_marginBottom="8dp"
+                android:padding="12dp"
+                app:cornerRadius="20dp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</ScrollView>
