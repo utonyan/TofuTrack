@@ -6,6 +6,8 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +22,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
 
 public class ProductionDetailActivity extends AppCompatActivity {
-
 
     private static final String EXTRA_PRODUCT_ID = "productId";
     private static final String EXTRA_PROD_NAME = "prodName";
@@ -45,7 +46,6 @@ public class ProductionDetailActivity extends AppCompatActivity {
     private double productCost;
     private int selectedHour = 8;
     private int selectedMinute = 30;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,13 +100,24 @@ public class ProductionDetailActivity extends AppCompatActivity {
             int alarmQuantity = prefs.getInt(KEY_ALARM_QUANTITY, 0);
             alarmTimeDisplay.setText("Current Production: " + alarmTime + " for quantity: " + alarmQuantity);
         } else {
-            alarmTimeDisplay.setText("No active production alarm.");
+            alarmTimeDisplay.setText("No active production set");
         }
     }
 
+    private boolean isInternetAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     private void showQuantityInputDialog() {
+        if (!isInternetAvailable()) {
+            Toast.makeText(this, "No internet connection! Cannot set Production.", Toast.LENGTH_SHORT).show();
+            return; // Exit if no internet
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Quantity to Subtract");
+        builder.setTitle("Enter Quantity to Produce");
 
         final EditText input = new EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
@@ -186,6 +197,11 @@ public class ProductionDetailActivity extends AppCompatActivity {
     }
 
     private void cancelAlarm() {
+        if (!isInternetAvailable()) {
+            Toast.makeText(this, "No internet connection! Cannot cancel Production.", Toast.LENGTH_SHORT).show();
+            return; // Exit if no internet
+        }
+
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
             alarmTimeDisplay.setText("Production canceled（>﹏<）");
@@ -204,7 +220,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
 
     private void updateProductQuantity(int quantityToSubtract) {
         if (currentProdQty <= 0 || quantityToSubtract <= 0) {
-            Toast.makeText(this, "Invalid quantity to subtract!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid quantity to Produce!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -212,22 +228,17 @@ public class ProductionDetailActivity extends AppCompatActivity {
         double newTotalPrice = newQuantity * productCost;
 
         if (productId == null || productId.isEmpty()) {
-            Log.e("ProductionDetailActivity", "Product ID is null or empty.");
-            return; // Prevent further execution
+            return;
         }
 
         DocumentReference productRef = db.collection("products").document(productId);
-
         productRef.update("prodQty", newQuantity, "prodTotalPrice", newTotalPrice)
                 .addOnSuccessListener(aVoid -> {
-                    currentProdQty = newQuantity;
+                    currentProdQty = newQuantity; // Update current quantity
                     prodQty.setText("Current Quantity: " + currentProdQty);
                     prodTotalPrice.setText("Total Price: ₱" + String.format("%.2f", newTotalPrice));
-                    Log.d("ProductionDetailActivity", "Product quantity updated successfully.");
+                    Toast.makeText(this, "Product quantity updated!", Toast.LENGTH_SHORT).show();
                 })
-                .addOnFailureListener(e -> {
-                    Log.e("ProductionDetailActivity", "Error updating product quantity: " + e.getMessage());
-                    Toast.makeText(this, "Failed to update product quantity!", Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Log.w("ProductionDetailActivity", "Error updating product quantity", e));
     }
 }
