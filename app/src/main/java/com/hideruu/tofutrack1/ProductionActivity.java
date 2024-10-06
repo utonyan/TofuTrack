@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -58,7 +59,10 @@ public class ProductionActivity extends AppCompatActivity {
                         productList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass product = document.toObject(DataClass.class);
-                            productList.add(product);
+                            // Check if product name is "Soybean"
+                            if ("Soybean".equalsIgnoreCase(product.getProdName())) {
+                                productList.add(product);
+                            }
                         }
                         adapter.notifyDataSetChanged();
                     } else {
@@ -81,7 +85,10 @@ public class ProductionActivity extends AppCompatActivity {
                     productList.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         DataClass product = document.toObject(DataClass.class);
-                        productList.add(product);
+                        // Check if product name is "Soybean"
+                        if ("Soybean".equalsIgnoreCase(product.getProdName())) {
+                            productList.add(product);
+                        }
                     }
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);

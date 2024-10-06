@@ -1,9 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main Toolbar -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,36 +23,46 @@
             android:id="@+id/title_text" />
 
         <ImageView
+            android:id="@+id/sdfsfs"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/sdfsfs"
             android:layout_toEndOf="@id/title_text"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_marginStart="3dp" />
-    </RelativeLayout>
 
-    <!-- SearchView -->
-    <RelativeLayout
-        android:id="@+id/search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/main_toolbar"> <!-- Align search below the toolbar -->
-
-        <androidx.appcompat.widget.SearchView
-            android:layout_width="match_parent"
+        <!-- Shopping Cart Text -->
+        <TextView
+            android:id="@+id/shopping_cart_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:id="@+id/searchView"
-            app:iconifiedByDefault="false"
-            app:searchHintIcon="@null"
-            app:queryHint="Search..."
-            android:focusable="false"
-            android:elevation="5dp"
-            android:background="@drawable/lavender_border" />
+            android:text="Shopping Cart:"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:layout_marginTop="5dp"
+            android:layout_toEndOf="@id/sdfsfs"
+        android:layout_marginStart="10dp"
+        android:layout_centerVertical="true" />
+
+        <!-- Cart Item Count -->
+        <TextView
+            android:id="@+id/cartItemCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/shopping_cart_text"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/circle_bg"
+        android:elevation="6dp"
+        android:padding="3dp"
+        android:text="0"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
     </RelativeLayout>
+
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -63,10 +73,10 @@
         android:visibility="gone" /> <!-- This ProgressBar is centered -->
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/updateRecordsRecyclerView"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/search" /> <!-- Place RecyclerView below SearchView -->
+        android:layout_below="@id/main_toolbar" /> <!-- Place RecyclerView below SearchView -->
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -75,6 +85,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="15dp"
-        android:src="@drawable/baseline_calendar_today_24"
+        android:src="@drawable/shoppingcart"
+        android:tint="@color/white"
         android:backgroundTint="@color/my_primary" />
 </RelativeLayout>

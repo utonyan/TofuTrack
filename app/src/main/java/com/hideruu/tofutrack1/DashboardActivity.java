@@ -42,5 +42,14 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(DashboardActivity.this, ProductionActivity.class));
             }
         });
+        // POS button setup
+        CardView posButton = findViewById(R.id.POS_button);
+        posButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open ProductionActivity
+                startActivity(new Intent(DashboardActivity.this, posActivity.class));
+            }
+        });
     }
 }

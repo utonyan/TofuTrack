@@ -11,7 +11,7 @@
     <ImageView
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/kitalogo"
+        android:src="@drawable/tofulogo3"
         android:layout_weight="10"/>
 
 
