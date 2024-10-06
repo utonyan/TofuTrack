@@ -7,9 +7,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -110,28 +108,34 @@ public class posActivity extends AppCompatActivity {
 
     // Handle product click
     private void onProductClick(DataClass product) {
-        // Show dialog to input quantity
         showQuantityDialog(product);
     }
 
+    // Show custom quantity dialog
     private void showQuantityDialog(DataClass product) {
+        // Inflate the custom dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_quantity, null);
+
+        // Get references to the views in the dialog layout
+        EditText quantityInput = dialogView.findViewById(R.id.quantity_input);
+
+        // Create the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Quantity");
+        builder.setView(dialogView)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    String value = quantityInput.getText().toString();
+                    if (!value.isEmpty()) {
+                        int quantity = Integer.parseInt(value);
+                        shoppingCart.addItem(product, quantity); // Add item to cart
+                        updateCartItemCount(); // Update cart item count
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                .setCancelable(true); // Allow dialog to be canceled
 
-        // Set up the input
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String value = input.getText().toString();
-            int quantity = Integer.parseInt(value);
-            shoppingCart.addItem(product, quantity); // Add item to cart
-            updateCartItemCount(); // Update cart item count
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
-        builder.show();
+        // Show the dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     // Show the shopping cart items
@@ -141,18 +145,23 @@ public class posActivity extends AppCompatActivity {
 
         // Create a StringBuilder to hold the cart item details
         StringBuilder cartDetails = new StringBuilder();
+        double totalCost = shoppingCart.calculateTotalCost(); // Calculate total cost
 
         // Get the cart items from ShoppingCart
         for (ShoppingCart.CartItem item : shoppingCart.getCartItems().values()) {
             cartDetails.append(item.getProduct().getProdName())
                     .append(": ")
                     .append(item.getQuantity())
-                    .append("\n");
+                    .append(" (Unit Cost: ₱")
+                    .append(item.getProduct().getProdCost())
+                    .append(")\n");
         }
 
         // Check if the cart is empty
         if (cartDetails.length() == 0) {
             cartDetails.append("Your cart is empty.");
+        } else {
+            cartDetails.append("\nTotal Cost: ₱").append(totalCost); // Display total cost
         }
 
         builder.setMessage(cartDetails.toString()); // Set the message to display cart details

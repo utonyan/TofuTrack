@@ -24,8 +24,12 @@ public class ShoppingCart {
         return cartItems;
     }
 
-    public void clearCart() {
-        cartItems.clear();
+    public double calculateTotalCost() {
+        double totalCost = 0;
+        for (CartItem item : cartItems.values()) {
+            totalCost += item.getProduct().getProdCost() * item.getQuantity();
+        }
+        return totalCost;
     }
 
     public static class CartItem {
