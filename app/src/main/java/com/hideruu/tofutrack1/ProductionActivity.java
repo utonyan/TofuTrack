@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -25,6 +26,7 @@ public class ProductionActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FirebaseFirestore db;
     private static final String RAW_MATERIAL_GROUP = "Raw Material"; // Group to filter
+    private static final String TARGET_PRODUCT_NAME = "Soybean"; // Product name to filter for
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class ProductionActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         db.collection("products")
                 .whereEqualTo("prodGroup", RAW_MATERIAL_GROUP) // Filter for Raw Material group
+                .whereEqualTo("prodName", TARGET_PRODUCT_NAME) // Filter for product name "Soybean"
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
@@ -62,7 +65,7 @@ public class ProductionActivity extends AppCompatActivity {
                         }
                         adapter.notifyDataSetChanged();
                     } else {
-                        Log.d("Firestore", "No Raw Material found in cache, fetching from server...");
+                        Log.d("Firestore", "No Soybean found in cache, fetching from server...");
                         fetchDataFromServer();
                     }
                     progressBar.setVisibility(View.GONE);
@@ -76,6 +79,7 @@ public class ProductionActivity extends AppCompatActivity {
     private void fetchDataFromServer() {
         db.collection("products")
                 .whereEqualTo("prodGroup", RAW_MATERIAL_GROUP) // Filter for Raw Material group
+                .whereEqualTo("prodName", TARGET_PRODUCT_NAME) // Filter for product name "Soybean"
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     productList.clear();
