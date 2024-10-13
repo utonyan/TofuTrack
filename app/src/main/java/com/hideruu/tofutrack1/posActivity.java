@@ -2,7 +2,6 @@ package com.hideruu.tofutrack1;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -13,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -35,10 +33,12 @@ public class posActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private static final String PRODUCT_GROUP = "Product"; // Group to filter for Product
 
+    // BroadcastReceiver for cart item count updates
     private BroadcastReceiver cartItemCountReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateCartItemCount(); // Reset item count when cart is cleared
+            updateCartItemCount(); // Update item count when cart is cleared
+            fetchData(); // Optionally refresh the product list if needed
         }
     };
 
@@ -118,7 +118,7 @@ public class posActivity extends AppCompatActivity {
                 });
     }
 
-// Handle product click
+    // Handle product click
     private void onProductClick(DataClass product) {
         // Inflate the custom dialog layout
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_quantity, null);
