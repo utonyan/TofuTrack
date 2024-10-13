@@ -1,56 +1,49 @@
 package com.hideruu.tofutrack1;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShoppingCart {
-    private Map<String, CartItem> cartItems; // Changed to use prodName as key
+    private static final List<CartItem> cartItems = new ArrayList<>();
 
-    public ShoppingCart() {
-        cartItems = new HashMap<>();
-    }
-
-    public void addItem(DataClass product, int quantity) {
-        String productName = product.getProdName(); // Use prodName as the key
-        if (cartItems.containsKey(productName)) {
-            CartItem existingItem = cartItems.get(productName);
-            existingItem.setQuantity(existingItem.getQuantity() + quantity);
-        } else {
-            cartItems.put(productName, new CartItem(product, quantity));
+    // Method to add or update item in the cart
+    public static void addItemToCart(DataClass product, int quantity) {
+        // Check if the item already exists in the cart by prodName
+        for (CartItem item : cartItems) {
+            if (item.getProduct().getProdName().equals(product.getProdName())) {
+                // Item exists, update the quantity and total price
+                int newQuantity = item.getQuantity() + quantity;
+                item.setQuantity(newQuantity); // Update quantity
+                item.setTotalPrice(newQuantity * product.getProdCost()); // Update total price
+                return;
+            }
         }
+        // Item does not exist, add it to the cart
+        CartItem newItem = new CartItem(product, quantity, quantity * product.getProdCost());
+        cartItems.add(newItem);
     }
 
-    public Map<String, CartItem> getCartItems() {
+    public static List<CartItem> getCartItems() {
         return cartItems;
     }
 
-    public double calculateTotalCost() {
-        double totalCost = 0;
-        for (CartItem item : cartItems.values()) {
-            totalCost += item.getProduct().getProdCost() * item.getQuantity();
-        }
-        return totalCost;
+    public static void clearCart() {
+        cartItems.clear();
     }
 
-    public static class CartItem {
-        private DataClass product;
-        private int quantity;
-
-        public CartItem(DataClass product, int quantity) {
-            this.product = product;
-            this.quantity = quantity;
+    public static int getItemCount() {
+        int totalItems = 0;
+        for (CartItem item : cartItems) {
+            totalItems += item.getQuantity();
         }
+        return totalItems;
+    }
 
-        public DataClass getProduct() {
-            return product;
+    public static double getTotalPrice() {
+        double totalPrice = 0;
+        for (CartItem item : cartItems) {
+            totalPrice += item.getTotalPrice(); // Sum of all total prices
         }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity = quantity;
-        }
+        return totalPrice;
     }
 }

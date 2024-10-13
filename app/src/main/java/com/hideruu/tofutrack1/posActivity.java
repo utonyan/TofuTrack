@@ -1,22 +1,26 @@
 package com.hideruu.tofutrack1;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +34,13 @@ public class posActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FirebaseFirestore db;
     private static final String PRODUCT_GROUP = "Product"; // Group to filter for Product
-    private ShoppingCart shoppingCart; // Shopping cart instance
-    private TextView cartItemCount; // TextView to show cart item count
-    private FloatingActionButton fab; // FAB to show cart items
+
+    private BroadcastReceiver cartItemCountReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateCartItemCount(); // Reset item count when cart is cleared
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,21 +53,25 @@ public class posActivity extends AppCompatActivity {
         // Initialize UI components
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        cartItemCount = findViewById(R.id.cartItemCount); // Initialize cart item count TextView
-        fab = findViewById(R.id.fab); // Initialize the FAB
-        shoppingCart = new ShoppingCart(); // Create a new shopping cart instance
 
         // Initialize product list and adapter with OnItemClickListener
         productList = new ArrayList<>();
-        adapter = new posAdapter(productList, this::onProductClick);
+        adapter = new posAdapter(productList, this::onProductClick); // Use posAdapter
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(adapter);
 
-        // Set FAB click listener
-        fab.setOnClickListener(view -> showCartItems());
-
         // Fetch data from Firestore
         fetchData();
+
+        // Open cart activity when FAB is clicked
+        findViewById(R.id.fab).setOnClickListener(v -> {
+            Intent intent = new Intent(posActivity.this, CartActivity.class);
+            startActivity(intent);
+        });
+
+        // Register the receiver for cart item count updates
+        IntentFilter filter = new IntentFilter("com.hideruu.tofutrack1.UPDATE_CART_ITEM_COUNT");
+        registerReceiver(cartItemCountReceiver, filter);
     }
 
     private void fetchData() {
@@ -106,79 +118,64 @@ public class posActivity extends AppCompatActivity {
                 });
     }
 
-    // Handle product click
+// Handle product click
     private void onProductClick(DataClass product) {
-        showQuantityDialog(product);
-    }
-
-    // Show custom quantity dialog
-    private void showQuantityDialog(DataClass product) {
         // Inflate the custom dialog layout
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_quantity, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_quantity, null);
 
-        // Get references to the views in the dialog layout
-        EditText quantityInput = dialogView.findViewById(R.id.quantity_input);
-
-        // Create the dialog
+        // Create an AlertDialog for quantity input
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialogView)
-                .setPositiveButton("OK", (dialog, which) -> {
-                    String value = quantityInput.getText().toString();
-                    if (!value.isEmpty()) {
-                        int quantity = Integer.parseInt(value);
-                        shoppingCart.addItem(product, quantity); // Add item to cart
-                        updateCartItemCount(); // Update cart item count
-                    }
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
-                .setCancelable(true); // Allow dialog to be canceled
+        builder.setView(dialogView);
 
-        // Show the dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    // Show the shopping cart items
-    private void showCartItems() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Shopping Cart Items");
-
-        // Create a StringBuilder to hold the cart item details
-        StringBuilder cartDetails = new StringBuilder();
-        double totalCost = shoppingCart.calculateTotalCost(); // Calculate total cost
-
-        // Get the cart items from ShoppingCart
-        for (ShoppingCart.CartItem item : shoppingCart.getCartItems().values()) {
-            cartDetails.append(item.getProduct().getProdName())
-                    .append(": ")
-                    .append(item.getQuantity())
-                    .append(" (Unit Cost: ₱")
-                    .append(item.getProduct().getProdCost())
-                    .append(")\n");
-        }
-
-        // Check if the cart is empty
-        if (cartDetails.length() == 0) {
-            cartDetails.append("Your cart is empty.");
-        } else {
-            cartDetails.append("\nTotal Cost: ₱").append(totalCost); // Display total cost
-        }
-
-        builder.setMessage(cartDetails.toString()); // Set the message to display cart details
+        // Get references to the UI elements in the dialog
+        EditText input = dialogView.findViewById(R.id.inputQuantity);
+        TextView quantityPrompt = dialogView.findViewById(R.id.quantityPrompt);
 
         // Set up the buttons
-        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton("Add to Cart", (dialog, which) -> {
+            String quantityStr = input.getText().toString().trim();
+            if (!quantityStr.isEmpty()) {
+                int quantityToAdd = Integer.parseInt(quantityStr);
 
-        // Show the dialog
+                // Get current quantity in the cart for this product
+                int currentQuantityInCart = 0;
+                for (CartItem item : ShoppingCart.getCartItems()) {
+                    if (item.getProduct().getProdName().equals(product.getProdName())) {
+                        currentQuantityInCart = item.getQuantity();
+                        break;
+                    }
+                }
+
+                // Check if requested quantity plus current quantity exceeds available stock
+                if (currentQuantityInCart + quantityToAdd > product.getProdQty()) {
+                    Toast.makeText(this, "Cannot add more than available stock (" + product.getProdQty() + ")", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Add product to cart or update its quantity if it already exists
+                    ShoppingCart.addItemToCart(product, quantityToAdd);
+                    updateCartItemCount();
+                    Toast.makeText(this, "Added to Cart!", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Please enter a valid quantity", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
         builder.show();
     }
 
-    // Update cart item count TextView
     private void updateCartItemCount() {
-        int totalCount = 0;
-        for (ShoppingCart.CartItem item : shoppingCart.getCartItems().values()) {
-            totalCount += item.getQuantity();
-        }
-        cartItemCount.setText(String.valueOf(totalCount)); // Update the TextView
+        TextView cartItemCount = findViewById(R.id.cartItemCount);
+        int itemCount = ShoppingCart.getItemCount(); // Implement getItemCount in ShoppingCart class
+        cartItemCount.setText(String.valueOf(itemCount));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(cartItemCountReceiver); // Unregister the receiver
+        // Clear the cart when posActivity is closed
+        ShoppingCart.clearCart();
     }
 }
