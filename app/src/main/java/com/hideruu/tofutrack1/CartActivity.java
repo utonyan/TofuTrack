@@ -12,7 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CartActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -59,6 +62,11 @@ public class CartActivity extends AppCompatActivity {
             return;
         }
 
+        AtomicReference<Double> totalCost = new AtomicReference<>(0.0);
+        List<ReceiptItem> receiptItems = new ArrayList<>();
+        int totalItems = cartItems.size(); // Total number of items to checkout
+        AtomicReference<Integer> completedCount = new AtomicReference<>(0); // Track completed Firestore queries
+
         for (CartItem cartItem : cartItems) {
             DataClass product = cartItem.getProduct();
             int quantityToSubtract = cartItem.getQuantity();
@@ -73,18 +81,20 @@ public class CartActivity extends AppCompatActivity {
                             String documentId = querySnapshot.getDocuments().get(0).getId();
                             int currentQuantity = product.getProdQty();
 
-                            // Calculate new quantity and total price
+                            // Calculate new quantity and item total price
                             int newQuantity = currentQuantity - quantityToSubtract;
-                            double totalCost = newQuantity * product.getProdCost();
+                            double itemCost = quantityToSubtract * product.getProdCost();
+                            totalCost.updateAndGet(v -> v + itemCost); // Accumulate total cost
+
+                            // Create a ReceiptItem to add to the receipt
+                            ReceiptItem receiptItem = new ReceiptItem(product.getProdName(), product.getProdCost(), product.getProdUnitType(), quantityToSubtract);
+                            receiptItems.add(receiptItem); // Add the item to the receipt list
 
                             // Update quantity and total price in Firestore
                             db.collection("products").document(documentId)
-                                    .update("prodQty", newQuantity, "prodTotalPrice", totalCost)
+                                    .update("prodQty", newQuantity, "prodTotalPrice", newQuantity * product.getProdCost())
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(CartActivity.this, "Checkout successful for " + product.getProdName(), Toast.LENGTH_SHORT).show();
-
-                                        // Send broadcast to update cart item count in posActivity
-                                        updateCartItemCountInPOS();
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(CartActivity.this, "Failed to update product: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -92,17 +102,40 @@ public class CartActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(CartActivity.this, "Product not found: " + product.getProdName(), Toast.LENGTH_SHORT).show();
                         }
+
+                        // Increment the completed count and check if all queries are done
+                        completedCount.updateAndGet(v -> v + 1);
+                        if (completedCount.get() == totalItems) {
+                            // After processing all items, create and save the receipt
+                            saveReceipt(receiptItems, totalCost.get());
+
+                            // Clear the cart after processing all items
+                            ShoppingCart.clearCart();
+                            cartAdapter.notifyDataSetChanged(); // Refresh the RecyclerView
+
+                            // Notify posActivity to refresh its product list
+                            updateCartItemCountInPOS();
+
+                            // Close the CartActivity
+                            finish();
+                        }
                     });
         }
-
-        // Clear the cart after processing all items
-        ShoppingCart.clearCart();
-        cartAdapter.notifyDataSetChanged(); // Refresh the RecyclerView
-
-        // Close the CartActivity
-        finish();
     }
 
+    // Method to save the receipt to Firestore
+    private void saveReceipt(List<ReceiptItem> receiptItems, double totalCost) {
+        Receipt receipt = new Receipt(receiptItems, totalCost, new Date());
+
+        db.collection("receipts")
+                .add(receipt)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(CartActivity.this, "Receipt saved: " + documentReference.getId(), Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(CartActivity.this, "Failed to save receipt: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
 
     // Method to reset item count in posActivity
     private void updateCartItemCountInPOS() {

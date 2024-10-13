@@ -38,7 +38,7 @@ public class posActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateCartItemCount(); // Update item count when cart is cleared
-            fetchData(); // Optionally refresh the product list if needed
+            fetchData(); // Refresh the product list if needed
         }
     };
 
