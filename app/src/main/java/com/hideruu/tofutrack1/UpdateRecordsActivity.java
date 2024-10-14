@@ -97,7 +97,6 @@ public class UpdateRecordsActivity extends AppCompatActivity {
 
     private void filterRecords(String query) {
         if (selectedDate.isEmpty()) {
-            // If no date is selected, show a message or just return without filtering
             Toast.makeText(this, "Please select a date first.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -112,6 +111,11 @@ public class UpdateRecordsActivity extends AppCompatActivity {
                     filteredList.add(record);
                 }
             }
+        }
+
+        // Check if there are any records for the selected date
+        if (filteredList.isEmpty()) {
+            Toast.makeText(this, "No records found for the selected date.", Toast.LENGTH_SHORT).show();
         }
 
         // Sort the filtered list in descending order by timestamp
