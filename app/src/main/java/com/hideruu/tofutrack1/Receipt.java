@@ -8,6 +8,9 @@ public class Receipt {
     private double totalCost;
     private Date dateTime;
 
+    // No-argument constructor required by Firestore
+    public Receipt() {}
+
     public Receipt(List<ReceiptItem> items, double totalCost, Date dateTime) {
         this.items = items;
         this.totalCost = totalCost;
@@ -18,11 +21,23 @@ public class Receipt {
         return items;
     }
 
+    public void setItems(List<ReceiptItem> items) {
+        this.items = items;
+    }
+
     public double getTotalCost() {
         return totalCost;
     }
 
+    public void setTotalCost(double totalCost) {
+        this.totalCost = totalCost;
+    }
+
     public Date getDateTime() {
         return dateTime;
+    }
+
+    public void setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
     }
 }

@@ -51,5 +51,14 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(DashboardActivity.this, posActivity.class));
             }
         });
+        // Receipt button setup
+        CardView receiptButton = findViewById(R.id.Receipts_button);
+        receiptButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open ProductionActivity
+                startActivity(new Intent(DashboardActivity.this, ReceiptActivity.class));
+            }
+        });
     }
 }
