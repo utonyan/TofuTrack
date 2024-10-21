@@ -144,9 +144,14 @@ public class SalesChartActivity extends AppCompatActivity {
 
         // Initialize sales counts
         int[] dailySales = new int[7]; // For days of the week
-        int[] weeklySales = new int[4];
-        int[] monthlySales = new int[12];
-        int[] yearlySales = new int[10];
+        int[] weeklySales = new int[5]; // For weeks in a month (assumes maximum 4 weeks)
+        int[] monthlySales = new int[12]; // For months in a year
+        int[] yearlySales = new int[10]; // For years
+
+        // Set all weekly sales to zero initially
+        for (int i = 0; i < weeklySales.length; i++) {
+            weeklySales[i] = 0; // Explicitly set to zero
+        }
 
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
@@ -156,7 +161,8 @@ public class SalesChartActivity extends AppCompatActivity {
         calendar.set(Calendar.MILLISECOND, 0);
 
         int currentYear = selectedDate.get(Calendar.YEAR);
-        int currentWeek = selectedDate.get(Calendar.WEEK_OF_YEAR); // Get the current week of the year
+        int currentMonth = selectedDate.get(Calendar.MONTH);
+        int currentWeek = selectedDate.get(Calendar.WEEK_OF_MONTH); // Get the current week of the month
 
         for (Receipt receipt : receiptList) {
             Calendar receiptCalendar = Calendar.getInstance();
@@ -166,18 +172,18 @@ public class SalesChartActivity extends AppCompatActivity {
                 if (item.getProdName().equals(selectedProductName)) {
                     // Daily Sales (for the current week)
                     if (receiptCalendar.get(Calendar.YEAR) == currentYear &&
-                            receiptCalendar.get(Calendar.WEEK_OF_YEAR) == currentWeek) {
-
+                            receiptCalendar.get(Calendar.WEEK_OF_MONTH) == currentWeek &&
+                            receiptCalendar.get(Calendar.MONTH) == currentMonth) {
                         int dayOfWeek = receiptCalendar.get(Calendar.DAY_OF_WEEK) - 1; // 0 = Sunday, 6 = Saturday
                         dailySales[dayOfWeek] += item.getQuantity();
                     }
 
-                    // Weekly Sales
-                    int receiptWeek = receiptCalendar.get(Calendar.WEEK_OF_YEAR);
-                    if (receiptCalendar.get(Calendar.YEAR) == currentYear) {
-                        int weeksDifference = currentWeek - receiptWeek;
-                        if (weeksDifference >= 0 && weeksDifference < 4) {
-                            weeklySales[weeksDifference] += item.getQuantity();
+                    // Weekly Sales - only fill for weeks of the current month
+                    if (receiptCalendar.get(Calendar.YEAR) == currentYear &&
+                            receiptCalendar.get(Calendar.MONTH) == currentMonth) {
+                        int receiptWeek = receiptCalendar.get(Calendar.WEEK_OF_MONTH);
+                        if (receiptWeek <= 4) { // Ensure we're within the maximum 4 weeks
+                            weeklySales[receiptWeek - 1] += item.getQuantity(); // -1 for zero-indexing
                         }
                     }
 
@@ -211,10 +217,11 @@ public class SalesChartActivity extends AppCompatActivity {
                 }
                 break;
             case "Weekly":
-                for (int i = 0; i < weeklySales.length; i++) {
-                    entries.add(new BarEntry(i, weeklySales[weeklySales.length - 1 - i]));
-                    if (weeklySales[weeklySales.length - 1 - i] > maxValue) {
-                        maxValue = weeklySales[weeklySales.length - 1 - i];
+                // Show only the weeks that have sales data
+                for (int i = 0; i < currentWeek; i++) {
+                    entries.add(new BarEntry(i, weeklySales[i]));
+                    if (weeklySales[i] > maxValue) {
+                        maxValue = weeklySales[i];
                     }
                 }
                 break;
@@ -246,6 +253,7 @@ public class SalesChartActivity extends AppCompatActivity {
         barChart.getAxisLeft().setAxisMaximum(maxValue + 10f); // Add some padding to the max value
         barChart.invalidate(); // Refresh the chart
     }
+
 
     private String[] getXAxisLabels() {
         switch (selectedTimePeriod) {
