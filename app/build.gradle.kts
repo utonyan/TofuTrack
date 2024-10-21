@@ -54,6 +54,8 @@ dependencies {
     implementation("com.github.clans:fab:1.6.4") // Keep only one entry
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
 
     // Testing libraries
     testImplementation(libs.junit)

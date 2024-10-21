@@ -1,6 +1,9 @@
 package com.hideruu.tofutrack1;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -22,6 +25,7 @@ public class CartActivity extends AppCompatActivity {
     private CartAdapter cartAdapter;
     private List<CartItem> cartItems;
     private FirebaseFirestore db; // Firestore instance
+    private Button checkoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +55,22 @@ public class CartActivity extends AppCompatActivity {
         });
 
         // Setup Checkout button
-        Button checkoutButton = findViewById(R.id.checkoutButton);
-        checkoutButton.setOnClickListener(v -> checkout());
+        checkoutButton = findViewById(R.id.checkoutButton);
+        checkoutButton.setEnabled(isNetworkAvailable()); // Disable if no network
+        checkoutButton.setOnClickListener(v -> {
+            if (isNetworkAvailable()) {
+                checkout();
+            } else {
+                Toast.makeText(CartActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Method to check network connectivity
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     // Method to handle checkout process

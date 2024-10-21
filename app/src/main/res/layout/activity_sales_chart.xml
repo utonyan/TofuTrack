@@ -1,0 +1,94 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/my_primary"
+        android:padding="10dp"
+        android:id="@+id/main_toolbar"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_marginStart="10dp"
+            android:layout_centerVertical="true"
+            android:id="@+id/title_text"
+            />
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/sdfsfs"
+            android:layout_toEndOf="@id/title_text"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="3dp"
+            />
+
+
+
+    </RelativeLayout>
+    <!-- Title -->
+    <TextView
+        android:textColor="@color/my_primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sales Chart"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="16dp"
+        android:padding="16dp"/>
+
+    <!-- Spinner for product names -->
+    <Spinner
+
+        android:id="@+id/productSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:background="@drawable/spinner_background"
+        android:padding="8dp"
+        android:layout_margin="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Spinner for time period -->
+    <Spinner
+        android:layout_margin="8dp"
+        android:id="@+id/timePeriodSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:background="@drawable/spinner_background"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp"/>
+
+
+
+    <!-- FrameLayout for BarChart -->
+    <FrameLayout
+        android:layout_margin="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/border_frame"
+        android:padding="8dp"> <!-- Optional padding around the BarChart -->
+
+        <!-- BarChart for sales -->
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/barChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"/>
+    </FrameLayout>
+</LinearLayout>

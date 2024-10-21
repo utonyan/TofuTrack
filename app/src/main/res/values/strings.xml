@@ -17,4 +17,11 @@
         <item>Cleaning Material</item>
         <item>Packaging</item>
     </string-array>
+
+    <string-array name="time_periods">
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Yearly</item>
+    </string-array>
 </resources>

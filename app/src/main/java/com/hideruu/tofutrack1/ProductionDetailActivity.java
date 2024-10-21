@@ -145,7 +145,18 @@ public class ProductionDetailActivity extends AppCompatActivity {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, hourOfDay, minute) -> {
             selectedHour = hourOfDay;
             selectedMinute = minute;
-            setAlarm(quantityToSubtract);
+
+            // Check if the selected time is in the past
+            Calendar selectedTime = Calendar.getInstance();
+            selectedTime.set(Calendar.HOUR_OF_DAY, selectedHour);
+            selectedTime.set(Calendar.MINUTE, selectedMinute);
+            selectedTime.set(Calendar.SECOND, 0);
+
+            if (selectedTime.before(Calendar.getInstance())) {
+                Toast.makeText(this, "Selected time is in the past! Please choose a future time.", Toast.LENGTH_SHORT).show();
+            } else {
+                setAlarm(quantityToSubtract);
+            }
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
 
         timePickerDialog.setTitle("Select Alarm Time");
@@ -157,6 +168,8 @@ public class ProductionDetailActivity extends AppCompatActivity {
         calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
         calendar.set(Calendar.MINUTE, selectedMinute);
         calendar.set(Calendar.SECOND, 0);
+
+        // No need to check again here, as the check has been moved to the showTimePickerDialog method
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -171,6 +184,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
             scheduleAlarm(quantityToSubtract, calendar);
         }
     }
+
 
     private void scheduleAlarm(int quantityToSubtract, Calendar calendar) {
         Intent intent = new Intent(this, AlarmReceiver.class);
@@ -202,21 +216,32 @@ public class ProductionDetailActivity extends AppCompatActivity {
             return; // Exit if no internet
         }
 
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent);
-            alarmTimeDisplay.setText("Production canceled（>﹏<）");
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isAlarmSet = prefs.getBoolean(KEY_ALARM_SET, false);
 
-            // Clear the saved alarm state
-            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean(KEY_ALARM_SET, false);
-            editor.putString(KEY_ALARM_TIME, null);
-            editor.putInt(KEY_ALARM_QUANTITY, 0);
-            editor.apply();
+        if (isAlarmSet) {
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent);
+                alarmTimeDisplay.setText("Production canceled（>﹏<）");
 
-            Toast.makeText(this, "Production canceled!", Toast.LENGTH_SHORT).show();
+                // Clear the saved alarm state
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(KEY_ALARM_SET, false);
+                editor.putString(KEY_ALARM_TIME, null);
+                editor.putInt(KEY_ALARM_QUANTITY, 0);
+                editor.apply();
+
+                Toast.makeText(this, "Production canceled!", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.e("ProductionDetailActivity", "PendingIntent is null, unable to cancel alarm.");
+                Toast.makeText(this, "Select a new Production before pressing cancel again", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Show a Toast prompting the user to select a new alarm instead
+            Toast.makeText(this, "No active production set. Please select a new production.", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void updateProductQuantity(int quantityToSubtract) {
         if (currentProdQty <= 0 || quantityToSubtract <= 0) {
