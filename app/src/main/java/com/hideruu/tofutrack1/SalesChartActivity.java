@@ -193,10 +193,11 @@ public class SalesChartActivity extends AppCompatActivity {
                     }
 
                     // Yearly Sales
-                    int startYear = currentYear - yearlySales.length + 1;
+                    int startYear = currentYear - yearlySales.length + 1; // This defines the starting year for the array
                     int receiptYear = receiptCalendar.get(Calendar.YEAR);
                     if (receiptYear >= startYear && receiptYear <= currentYear) {
-                        int index = currentYear - receiptYear;
+                        // Adjust this line
+                        int index = receiptYear - startYear;
                         yearlySales[index] += item.getQuantity();
                     }
                 }
@@ -217,7 +218,6 @@ public class SalesChartActivity extends AppCompatActivity {
                 }
                 break;
             case "Weekly":
-                // Show only the weeks that have sales data
                 for (int i = 0; i < currentWeek; i++) {
                     entries.add(new BarEntry(i, weeklySales[i]));
                     if (weeklySales[i] > maxValue) {
@@ -234,10 +234,12 @@ public class SalesChartActivity extends AppCompatActivity {
                 }
                 break;
             case "Yearly":
-                for (int i = yearlySales.length - 1; i >= 0; i--) {
-                    entries.add(new BarEntry(yearlySales.length - 1 - i, yearlySales[i]));
-                    if (yearlySales[i] > maxValue) {
-                        maxValue = yearlySales[i];
+                for (int i = 0; i < yearlySales.length; i++) {
+                    if (yearlySales[i] > 0) { // Only include years with sales data
+                        entries.add(new BarEntry(i, yearlySales[i]));
+                        if (yearlySales[i] > maxValue) {
+                            maxValue = yearlySales[i];
+                        }
                     }
                 }
                 break;
@@ -249,13 +251,19 @@ public class SalesChartActivity extends AppCompatActivity {
         BarData data = new BarData(dataSet);
         barChart.setData(data);
         barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(getXAxisLabels()));
+
+        // Adjust X-axis labels for yearly sales
+        barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(getXAxisLabels(entries.size())));
         barChart.getAxisLeft().setAxisMaximum(maxValue + 10f); // Add some padding to the max value
         barChart.invalidate(); // Refresh the chart
     }
 
 
-    private String[] getXAxisLabels() {
+    // Modify getXAxisLabels to adapt based on the number of entries
+    private String[] getXAxisLabels(int entryCount) {
+        List<String> labels = new ArrayList<>();
+        int currentYear = selectedDate.get(Calendar.YEAR);
+
         switch (selectedTimePeriod) {
             case "Daily":
                 return new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
@@ -264,10 +272,14 @@ public class SalesChartActivity extends AppCompatActivity {
             case "Monthly":
                 return new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
             case "Yearly":
-                return new String[]{"Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6", "Year 7", "Year 8", "Year 9", "Year 10"};
+                for (int i = 0; i < entryCount; i++) {
+                    labels.add(String.valueOf(currentYear - (entryCount - 1 - i))); // Display years in chronological order
+                }
+                break;
         }
-        return new String[]{};
+        return labels.toArray(new String[0]);
     }
+
 
     private void showDatePicker() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
