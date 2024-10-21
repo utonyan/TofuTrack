@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.DatePickerDialog;
+
 public class SalesChartActivity extends AppCompatActivity {
 
     private BarChart barChart;
@@ -34,6 +37,7 @@ public class SalesChartActivity extends AppCompatActivity {
     private List<Receipt> receiptList = new ArrayList<>();
     private String selectedProductName = "";
     private String selectedTimePeriod = "Daily";
+    private Calendar selectedDate = Calendar.getInstance(); // For storing the selected date
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,7 @@ public class SalesChartActivity extends AppCompatActivity {
         barChart = findViewById(R.id.barChart);
         productSpinner = findViewById(R.id.productSpinner);
         timePeriodSpinner = findViewById(R.id.timePeriodSpinner);
+        FloatingActionButton fab = findViewById(R.id.fab); // Make sure to add the FAB in your XML layout
 
         // Enable scaling and pinch zoom
         barChart.setPinchZoom(true);
@@ -81,6 +86,9 @@ public class SalesChartActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        // Set up the FloatingActionButton click listener
+        fab.setOnClickListener(view -> showDatePicker());
     }
 
     private void loadSalesData() {
@@ -147,8 +155,8 @@ public class SalesChartActivity extends AppCompatActivity {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        int currentYear = calendar.get(Calendar.YEAR);
-        int currentWeek = calendar.get(Calendar.WEEK_OF_YEAR); // Get the current week of the year
+        int currentYear = selectedDate.get(Calendar.YEAR);
+        int currentWeek = selectedDate.get(Calendar.WEEK_OF_YEAR); // Get the current week of the year
 
         for (Receipt receipt : receiptList) {
             Calendar receiptCalendar = Calendar.getInstance();
@@ -231,46 +239,37 @@ public class SalesChartActivity extends AppCompatActivity {
         // Set up the bar data set and labels
         BarDataSet dataSet = new BarDataSet(entries, selectedProductName + " Sold Items");
         dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-        BarData barData = new BarData(dataSet);
-        barChart.setData(barData);
-
-        // Customize the Y-axis maximum based on the highest value
-        YAxis yAxis = barChart.getAxisLeft();
-        yAxis.setAxisMaximum(maxValue + (maxValue * 0.1f)); // Adding 10% buffer to max value
-        yAxis.setAxisMinimum(0f); // Set minimum to 0
-
-        // Customize the X-axis labels based on the selected time period
-        XAxis xAxis = barChart.getXAxis();
-        switch (selectedTimePeriod) {
-            case "Daily":
-                String[] dailyLabels = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-                xAxis.setValueFormatter(new IndexAxisValueFormatter(dailyLabels));
-                break;
-            case "Weekly":
-                String[] weeklyLabels = {"Week 1", "Week 2", "Week 3", "Week 4"};
-                xAxis.setValueFormatter(new IndexAxisValueFormatter(weeklyLabels));
-                break;
-            case "Monthly":
-                String[] monthlyLabels = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-                xAxis.setValueFormatter(new IndexAxisValueFormatter(monthlyLabels));
-                break;
-            case "Yearly":
-                String[] yearlyLabels = new String[yearlySales.length];
-                for (int i = 0; i < yearlySales.length; i++) {
-                    yearlyLabels[i] = String.valueOf(currentYear - yearlySales.length + i + 1);
-                }
-                xAxis.setValueFormatter(new IndexAxisValueFormatter(yearlyLabels));
-                break;
-        }
-
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setGranularity(1f);
-        xAxis.setDrawGridLines(false);
-        xAxis.setAxisLineWidth(2f);
-        xAxis.setAxisLineColor(Color.BLACK);
-        xAxis.setLabelCount(entries.size(), true); // Ensure labels are shown appropriately
-
+        BarData data = new BarData(dataSet);
+        barChart.setData(data);
+        barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(getXAxisLabels()));
+        barChart.getAxisLeft().setAxisMaximum(maxValue + 10f); // Add some padding to the max value
         barChart.invalidate(); // Refresh the chart
     }
 
+    private String[] getXAxisLabels() {
+        switch (selectedTimePeriod) {
+            case "Daily":
+                return new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+            case "Weekly":
+                return new String[]{"Week 1", "Week 2", "Week 3", "Week 4"};
+            case "Monthly":
+                return new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+            case "Yearly":
+                return new String[]{"Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6", "Year 7", "Year 8", "Year 9", "Year 10"};
+        }
+        return new String[]{};
+    }
+
+    private void showDatePicker() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(year, month, dayOfMonth);
+                    updateChart(); // Update the chart after selecting a date
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+    }
 }
