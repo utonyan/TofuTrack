@@ -45,10 +45,19 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Developed by @hideru_osu"
+        android:text="Designed by @vwvoyd"
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:layout_marginBottom="20dp"
         android:textColor="@color/off_white"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Developed by @hideru_osu"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:layout_marginBottom="40dp"
+        android:textColor="@color/off_white"/>
+
 
 </RelativeLayout>
