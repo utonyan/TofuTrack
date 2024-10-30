@@ -30,9 +30,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="0dp"
-            android:fontFamily="monospace"
+            android:fontFamily="sans-serif"
             android:text="@string/app_name"
-            android:textColor="@color/white"
+            android:textColor="#EFFFFF"
             android:textSize="40sp"
             android:textStyle="bold" />
 
@@ -45,7 +45,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Developed by Hideru_osu"
+        android:text="Developed by @hideru_osu"
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:layout_marginBottom="20dp"

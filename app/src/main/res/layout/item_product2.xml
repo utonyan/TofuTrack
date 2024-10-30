@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="12dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="8dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Product Image -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/prodImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/uploadimg"
+            app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+            app:layout_constraintBottom_toTopOf="@+id/prodName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+        <!-- Product Name -->
+        <TextView
+            android:id="@+id/prodName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/prodGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prodImage"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+
+        <!-- Product Group -->
+        <TextView
+            android:id="@+id/prodGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Group"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/prodQty"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prodName"
+            app:layout_constraintHorizontal_bias="0"/>
+
+        <!-- Product Quantity -->
+        <TextView
+            android:id="@+id/prodQty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quantity: 0"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/prodCost"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prodGroup"
+            app:layout_constraintHorizontal_bias="0"/>
+
+        <!-- Product Cost -->
+        <TextView
+            android:id="@+id/prodCost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cost: $0.00"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/prodTotalPrice"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prodQty"
+            app:layout_constraintHorizontal_bias="0"/>
+
+        <!-- Product Total Price -->
+        <TextView
+            android:id="@+id/prodTotalPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Price: $0.00"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prodCost"
+            app:layout_constraintHorizontal_bias="0"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

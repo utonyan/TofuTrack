@@ -144,14 +144,9 @@ public class SalesChartActivity extends AppCompatActivity {
 
         // Initialize sales counts
         int[] dailySales = new int[7]; // For days of the week
-        int[] weeklySales = new int[5]; // For weeks in a month (assumes maximum 4 weeks)
+        int[] weeklySales = new int[5]; // Extended to 5 weeks
         int[] monthlySales = new int[12]; // For months in a year
         int[] yearlySales = new int[10]; // For years
-
-        // Set all weekly sales to zero initially
-        for (int i = 0; i < weeklySales.length; i++) {
-            weeklySales[i] = 0; // Explicitly set to zero
-        }
 
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
@@ -162,7 +157,7 @@ public class SalesChartActivity extends AppCompatActivity {
 
         int currentYear = selectedDate.get(Calendar.YEAR);
         int currentMonth = selectedDate.get(Calendar.MONTH);
-        int currentWeek = selectedDate.get(Calendar.WEEK_OF_MONTH); // Get the current week of the month
+        int currentWeek = selectedDate.get(Calendar.WEEK_OF_MONTH);
 
         for (Receipt receipt : receiptList) {
             Calendar receiptCalendar = Calendar.getInstance();
@@ -178,12 +173,13 @@ public class SalesChartActivity extends AppCompatActivity {
                         dailySales[dayOfWeek] += item.getQuantity();
                     }
 
-                    // Weekly Sales - only fill for weeks of the current month
+                    // Weekly Sales - extend to week 5
                     if (receiptCalendar.get(Calendar.YEAR) == currentYear &&
-                            receiptCalendar.get(Calendar.MONTH) == currentMonth) {
+                            (receiptCalendar.get(Calendar.MONTH) == currentMonth ||
+                                    (receiptCalendar.get(Calendar.MONTH) == currentMonth + 1 && receiptCalendar.get(Calendar.WEEK_OF_MONTH) == 1))) {
                         int receiptWeek = receiptCalendar.get(Calendar.WEEK_OF_MONTH);
-                        if (receiptWeek <= 4) { // Ensure we're within the maximum 4 weeks
-                            weeklySales[receiptWeek - 1] += item.getQuantity(); // -1 for zero-indexing
+                        if (receiptWeek <= 5) { // Adjust for week 5
+                            weeklySales[receiptWeek - 1] += item.getQuantity();
                         }
                     }
 
@@ -196,7 +192,6 @@ public class SalesChartActivity extends AppCompatActivity {
                     int startYear = currentYear - yearlySales.length + 1; // This defines the starting year for the array
                     int receiptYear = receiptCalendar.get(Calendar.YEAR);
                     if (receiptYear >= startYear && receiptYear <= currentYear) {
-                        // Adjust this line
                         int index = receiptYear - startYear;
                         yearlySales[index] += item.getQuantity();
                     }
@@ -218,7 +213,7 @@ public class SalesChartActivity extends AppCompatActivity {
                 }
                 break;
             case "Weekly":
-                for (int i = 0; i < currentWeek; i++) {
+                for (int i = 0; i < weeklySales.length; i++) {
                     entries.add(new BarEntry(i, weeklySales[i]));
                     if (weeklySales[i] > maxValue) {
                         maxValue = weeklySales[i];
@@ -252,11 +247,12 @@ public class SalesChartActivity extends AppCompatActivity {
         barChart.setData(data);
         barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
 
-        // Adjust X-axis labels for yearly sales
+        // Adjust X-axis labels for weekly sales to include "Week 5"
         barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(getXAxisLabels(entries.size())));
         barChart.getAxisLeft().setAxisMaximum(maxValue + 10f); // Add some padding to the max value
         barChart.invalidate(); // Refresh the chart
     }
+
 
 
     // Modify getXAxisLabels to adapt based on the number of entries
@@ -268,7 +264,7 @@ public class SalesChartActivity extends AppCompatActivity {
             case "Daily":
                 return new String[]{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
             case "Weekly":
-                return new String[]{"Week 1", "Week 2", "Week 3", "Week 4"};
+                return new String[]{"Week 1", "Week 2", "Week 3", "Week 4", "Week 5"};
             case "Monthly":
                 return new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
             case "Yearly":

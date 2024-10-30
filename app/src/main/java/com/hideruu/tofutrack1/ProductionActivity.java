@@ -43,7 +43,7 @@ public class ProductionActivity extends AppCompatActivity {
         // Initialize product list and adapter with OnItemClickListener
         productList = new ArrayList<>();
         adapter = new ProductionAdapter(productList, this::onProductClick); // Set the ProductionAdapter with click listener
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         recyclerView.setAdapter(adapter);
 
         // Fetch data from Firestore
