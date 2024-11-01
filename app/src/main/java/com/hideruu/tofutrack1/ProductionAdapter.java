@@ -44,10 +44,10 @@ public class ProductionAdapter extends RecyclerView.Adapter<ProductionAdapter.Pr
 
         // Set product details to views
         holder.prodName.setText(product.getProdName());
-        holder.prodGroup.setText("Group: " + product.getProdGroup());
-        holder.prodQty.setText("Quantity: " + product.getProdQty() + " " + product.getProdUnitType());
-        holder.prodCost.setText("Cost per unit: ₱" + String.format("%.2f", product.getProdCost()));
-        holder.prodTotalPrice.setText("Total: ₱" + String.format("%.2f", product.getProdTotalPrice()));
+        //holder.prodGroup.setText("Group: " + product.getProdGroup());
+        //holder.prodQty.setText("Quantity: " + product.getProdQty() + " " + product.getProdUnitType());
+        //holder.prodCost.setText("Cost per unit: ₱" + String.format("%.2f", product.getProdCost()));
+        //sholder.prodTotalPrice.setText("Total: ₱" + String.format("%.2f", product.getProdTotalPrice()));
 
         // Load image using Glide with error handling
         Glide.with(holder.itemView.getContext())

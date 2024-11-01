@@ -193,7 +193,11 @@ public class ProductionDetailActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_PROD_NAME, prodName.getText().toString());
         pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }
 
         alarmTimeDisplay.setText("Production set for: " + selectedHour + ":" + String.format("%02d", selectedMinute));
         Toast.makeText(this, "Production set!", Toast.LENGTH_SHORT).show();
@@ -209,6 +213,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
         // Update product quantity in Firestore
         updateProductQuantity(quantityToSubtract);
     }
+
 
     private void cancelAlarm() {
         if (!isInternetAvailable()) {

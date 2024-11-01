@@ -53,7 +53,26 @@
             android:orientation="vertical"
             android:padding="16dp"
             android:background="@android:color/white">
+            <!-- Alarm Time Display -->
+            <TextView
+                android:layout_gravity="center"
+                android:id="@+id/alarmTimeDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nothing scheduled yet"
+                android:textSize="25sp"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_red_light"
+                android:layout_marginBottom="8dp" />
 
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginBottom="16dp"/>
             <!-- Product Name -->
             <TextView
                 android:id="@+id/prodName"
@@ -122,15 +141,6 @@
                 android:background="@android:color/darker_gray"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- Alarm Time Display -->
-            <TextView
-                android:id="@+id/alarmTimeDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nothing scheduled yet~ (U ω U❁)"
-                android:textSize="18sp"
-                android:textColor="@android:color/holo_red_light"
-                android:layout_marginBottom="8dp" />
 
             <!-- Set Alarm Button -->
             <Button

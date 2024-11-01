@@ -247,7 +247,7 @@
                 <ImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/factory"
+                    android:src="@drawable/baseline_alarm_24"
                     android:layout_gravity="center_horizontal"
                     app:tint="@color/skyblue"
                     />
@@ -255,7 +255,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Soy Production"
+                    android:text="Soak Reminder"
                     android:layout_gravity="center_horizontal"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -337,7 +337,7 @@
                 <ImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/baseline_dashboard_24"
+                    android:src="@drawable/factory"
                     android:layout_gravity="center_horizontal"
                     app:tint="@color/skyblue"
                     />
@@ -345,7 +345,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dashboard"
+                    android:text="Production"
                     android:layout_gravity="center_horizontal"
                     android:textSize="18sp"
                     android:textStyle="bold"

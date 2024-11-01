@@ -66,7 +66,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.kitachan)
-                .setContentTitle("Production Update")
+                .setContentTitle("Soak Update")
                 .setContentText("Subtracted " + quantityToSubtract + " from " + productName + ". New Quantity: " + newQty)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
