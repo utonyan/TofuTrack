@@ -2,6 +2,7 @@ package com.hideruu.tofutrack1;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -26,6 +27,9 @@ public class CartActivity extends AppCompatActivity {
     private List<CartItem> cartItems;
     private FirebaseFirestore db; // Firestore instance
     private Button checkoutButton;
+    private SharedPreferences sharedPreferences;
+    private static final String PREFS_NAME = "TofuTrackPrefs";
+    private static final String KEY_RECEIPT_ID = "lastReceiptId";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class CartActivity extends AppCompatActivity {
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
+        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         recyclerView = findViewById(R.id.recyclerViewCart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -125,7 +130,8 @@ public class CartActivity extends AppCompatActivity {
                         completedCount.updateAndGet(v -> v + 1);
                         if (completedCount.get() == totalItems) {
                             // After processing all items, create and save the receipt
-                            saveReceipt(receiptItems, totalCost.get());
+                            String documentName = "SalesRecord_" + String.format("%02d", getNextReceiptId()); // Format as SalesRecord_01
+                            saveReceipt(receiptItems, totalCost.get(), documentName); // Pass the document name to the save method
 
                             // Clear the cart after processing all items
                             ShoppingCart.clearCart();
@@ -141,9 +147,17 @@ public class CartActivity extends AppCompatActivity {
         }
     }
 
+    // Method to get the next receipt ID
+    private int getNextReceiptId() {
+        int lastId = sharedPreferences.getInt(KEY_RECEIPT_ID, -1); // Get the last receipt ID, default to -1
+        int nextId = (lastId + 1) % Integer.MAX_VALUE; // Increment and wrap around if necessary
+        sharedPreferences.edit().putInt(KEY_RECEIPT_ID, nextId).apply(); // Save the new last ID
+        return nextId;
+    }
+
     // Method to save the receipt to Firestore
-    private void saveReceipt(List<ReceiptItem> receiptItems, double totalCost) {
-        Receipt receipt = new Receipt(receiptItems, totalCost, new Date());
+    private void saveReceipt(List<ReceiptItem> receiptItems, double totalCost, String documentName) {
+        Receipt receipt = new Receipt(receiptItems, totalCost, new Date(), documentName); // Pass the document name
 
         db.collection("receipts")
                 .add(receipt)

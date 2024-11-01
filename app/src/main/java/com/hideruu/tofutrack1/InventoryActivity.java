@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class InventoryActivity extends AppCompatActivity {
@@ -116,6 +117,10 @@ public class InventoryActivity extends AppCompatActivity {
                             productList.add(product);
                             originalProductList.add(product); // Add to original list as well
                         }
+                        // Sort both lists alphabetically by product name
+                        sortProductsAlphabetically(productList);
+                        sortProductsAlphabetically(originalProductList);
+
                         adapter.notifyDataSetChanged();
                     } else {
                         Log.d("Firestore", "No data found in cache, fetching from server...");
@@ -140,6 +145,10 @@ public class InventoryActivity extends AppCompatActivity {
                         productList.add(product);
                         originalProductList.add(product); // Add to original list as well
                     }
+                    // Sort both lists alphabetically by product name
+                    sortProductsAlphabetically(productList);
+                    sortProductsAlphabetically(originalProductList);
+
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
                 })
@@ -147,6 +156,10 @@ public class InventoryActivity extends AppCompatActivity {
                     Log.e("Firestore", "Error loading data from server", e);
                     progressBar.setVisibility(View.GONE);
                 });
+    }
+
+    private void sortProductsAlphabetically(List<DataClass> products) {
+        Collections.sort(products, (p1, p2) -> p1.getProdName().compareToIgnoreCase(p2.getProdName()));
     }
 
     private void searchProducts(String query) {

@@ -6,19 +6,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.List;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class UpdateRecordAdapter extends RecyclerView.Adapter<UpdateRecordAdapter.UpdateRecordViewHolder> {
 
     private List<UpdateRecord> updateRecords;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+    private SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+    private SimpleDateFormat outputDateFormat = new SimpleDateFormat("hh:mm a, MMM dd, yyyy", Locale.getDefault()); // 12-hour format
 
     public UpdateRecordAdapter(List<UpdateRecord> updateRecords) {
         this.updateRecords = updateRecords;
@@ -31,8 +32,8 @@ public class UpdateRecordAdapter extends RecyclerView.Adapter<UpdateRecordAdapte
             @Override
             public int compare(UpdateRecord r1, UpdateRecord r2) {
                 try {
-                    Date date1 = dateFormat.parse(r1.getTimestamp());
-                    Date date2 = dateFormat.parse(r2.getTimestamp());
+                    Date date1 = inputDateFormat.parse(r1.getTimestamp());
+                    Date date2 = inputDateFormat.parse(r2.getTimestamp());
                     return date2.compareTo(date1); // Sort in descending order
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -57,7 +58,16 @@ public class UpdateRecordAdapter extends RecyclerView.Adapter<UpdateRecordAdapte
         holder.tvProdQtyUnitType.setText(String.format("Quantity: %d %s", record.getProdQty(), record.getProdUnitType()));
         holder.tvProdCost.setText(String.format("Cost: %.2f", record.getProdCost()));
         holder.tvProdGroup.setText(record.getProdGroup());
-        holder.tvTimestamp.setText(record.getTimestamp());
+
+        // Format the timestamp to 12-hour format
+        try {
+            Date date = inputDateFormat.parse(record.getTimestamp());
+            String formattedDate = outputDateFormat.format(date);
+            holder.tvTimestamp.setText(formattedDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            holder.tvTimestamp.setText(record.getTimestamp()); // Fallback to original timestamp if parsing fails
+        }
     }
 
     @Override
@@ -77,10 +87,9 @@ public class UpdateRecordAdapter extends RecyclerView.Adapter<UpdateRecordAdapte
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
         }
     }
+
     public void updateRecords(List<UpdateRecord> newRecords) {
         this.updateRecords = newRecords;
         notifyDataSetChanged(); // Notify the adapter to refresh the view
     }
-
-
 }

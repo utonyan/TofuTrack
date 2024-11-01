@@ -30,14 +30,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -227,43 +225,45 @@ public class UploadActivity extends AppCompatActivity {
 
         db.collection("products").add(data).addOnSuccessListener(documentReference -> {
             Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+
+            // Call recordUpdate after successful addition of product data
+            recordUpdate(prodName, prodQty, prodCost, prodUnitType, prodGroup);
         }).addOnFailureListener(e -> {
             Log.w("Firestore", "Error adding document", e);
         });
     }
 
-    // Check if network is available
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
+    // Function to create an update record in Firestore
+    private void recordUpdate(String prodName, int prodQty, double prodCost, String prodUnitType, String prodGroup) {
+        // Create a new record with the current date and time
+        Map<String, Object> updateRecord = new HashMap<>();
+        updateRecord.put("prodName", prodName);
+        updateRecord.put("prodQty", prodQty);
+        updateRecord.put("prodCost", prodCost);
+        updateRecord.put("prodUnitType", prodUnitType); // Add product unit type
+        updateRecord.put("prodGroup", prodGroup); // Add product group
+
+        // Format the current date and time
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String formattedDate = sdf.format(new Date()); // Format current date
+
+        updateRecord.put("timestamp", formattedDate); // Add the formatted date to the record
+
+        // Add a new document to the product_updates collection
+        db.collection("product_updates").add(updateRecord)
+                .addOnSuccessListener(aVoid -> Log.d("UploadActivity", "Update record added successfully."))
+                .addOnFailureListener(e -> Log.e("UploadActivity", "Error adding update record: ", e));
     }
 
-    // Schedule image upload task when network is available *FOR FUTURE USE*
-    private void scheduleImageUploadTask(int productId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String uniqueImageName) {
-        Data inputData = new Data.Builder()
-                .putInt("productId", productId)  // Change to putInt for productId
-                .putString("prodName", prodName)
-                .putString("prodDesc", prodDesc)
-                .putString("prodGroup", prodGroup)
-                .putInt("prodQty", prodQty)
-                .putDouble("prodCost", prodCost)
-                .putDouble("prodTotalPrice", prodTotalPrice)
-                .putString("image_name", uniqueImageName)
-                .build();
-
-        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest.Builder(ImageUploadWorker.class)
-                .setInputData(inputData)
-                .setConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build())
-                .build();
-
-        WorkManager.getInstance(this).enqueue(uploadWorkRequest);
+    // Function to check network connectivity
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     // Interface for duplicate check callback
-    private interface OnDuplicateCheckListener {
+    interface OnDuplicateCheckListener {
         void onDuplicateCheck(String prodId);
     }
 }

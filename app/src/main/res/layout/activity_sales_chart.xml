@@ -37,17 +37,6 @@
 
 
     </RelativeLayout>
-    <!-- Title -->
-    <TextView
-        android:textColor="@color/my_primary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sales Chart"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:paddingBottom="16dp"
-        android:padding="16dp"/>
 
     <!-- Spinner for product names -->
     <Spinner

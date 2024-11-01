@@ -7,10 +7,8 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,26 +26,22 @@ public class UpdateActivity extends AppCompatActivity {
 
     private static final String TAG = "UpdateActivity";
 
-    private EditText uploadProd, uploadDesc, uploadQty, uploadCost;
-    private Spinner unitTypeSpinner, groupSpinner;
+    private EditText uploadProd, uploadDesc, uploadQty, uploadCost, uploadGroup, unitType;
     private Button saveButton;
 
     private FirebaseFirestore db;
-    private String productName; // Store product name as String
+    private String productName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update); // Ensure this matches your XML file name
+        setContentView(R.layout.activity_update);
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
         // Initialize views
         initializeViews();
-
-        // Set up adapters for Spinners
-        setupSpinners();
 
         // Get data from intent
         getDataFromIntent();
@@ -61,65 +55,70 @@ public class UpdateActivity extends AppCompatActivity {
         uploadDesc = findViewById(R.id.uploadDesc);
         uploadQty = findViewById(R.id.uploadQty);
         uploadCost = findViewById(R.id.uploadCost);
-        unitTypeSpinner = findViewById(R.id.unitTypeSpinner);
-        groupSpinner = findViewById(R.id.uploadGroupSpinner);
+        uploadGroup = findViewById(R.id.uploadGroup); // Non-editable field
+        unitType = findViewById(R.id.unitType);       // Non-editable field
         saveButton = findViewById(R.id.saveButton);
-    }
-
-    private void setupSpinners() {
-        ArrayAdapter<CharSequence> unitTypeAdapter = ArrayAdapter.createFromResource(this,
-                R.array.unit_types, android.R.layout.simple_spinner_item);
-        unitTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        unitTypeSpinner.setAdapter(unitTypeAdapter); // Enable spinner
-
-        ArrayAdapter<CharSequence> groupAdapter = ArrayAdapter.createFromResource(this,
-                R.array.product_groups, android.R.layout.simple_spinner_item);
-        groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        groupSpinner.setAdapter(groupAdapter); // Enable spinner
     }
 
     private void getDataFromIntent() {
         Intent intent = getIntent();
         if (intent != null) {
-            productName = intent.getStringExtra("prodName"); // Get productName from intent
+            productName = intent.getStringExtra("prodName");
             String desc = intent.getStringExtra("prodDesc");
             String group = intent.getStringExtra("prodGroup");
             int qty = intent.getIntExtra("prodQty", 0);
             double cost = intent.getDoubleExtra("prodCost", 0.0);
-            String unitType = intent.getStringExtra("prodUnitType");
-
-            // Log retrieved values for debugging
-            Log.d(TAG, "Retrieved Description: " + desc); // Log the description
+            String prodUnitType = intent.getStringExtra("prodUnitType");
 
             // Populate fields
             uploadProd.setText(productName);
 
             // Set the description directly without modifications
             if (desc != null) {
-                uploadDesc.setText(desc.replace("Description: ", "").trim()); // Remove "Description: " if it exists
+                uploadDesc.setText(desc.replace("Description: ", "").trim());
             } else {
-                uploadDesc.setText(""); // Set to empty if null
+                uploadDesc.setText("");
             }
 
             uploadQty.setText(String.valueOf(qty));
             uploadCost.setText(String.format(Locale.getDefault(), "%.2f", cost));
 
-            // Set spinner selections
-            setSpinnerSelection(groupSpinner, group);
-            setSpinnerSelection(unitTypeSpinner, unitType);
-        }
-    }
+            // Set non-editable group field
+            if (group != null) {
+                uploadGroup.setText(group.replace("Group:", "").trim());
+            }
 
-
-    private void setSpinnerSelection(Spinner spinner, String value) {
-        if (value != null) {
-            // Check if the value exists in the spinner's adapter
-            int position = ((ArrayAdapter<String>) spinner.getAdapter()).getPosition(value);
-            if (position >= 0) {
-                spinner.setSelection(position);
+            // Retrieve prodUnitType if not present in the intent
+            if (prodUnitType != null) {
+                unitType.setText(prodUnitType);
+            } else {
+                fetchProdUnitTypeFromFirestore(productName);
             }
         }
     }
+
+    private void fetchProdUnitTypeFromFirestore(String productName) {
+        db.collection("products")
+                .whereEqualTo("prodName", productName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        String retrievedProdUnitType = documentSnapshot.getString("prodUnitType");
+                        if (retrievedProdUnitType != null) {
+                            unitType.setText(retrievedProdUnitType);
+                        }
+                    } else {
+                        Log.d(TAG, "Product with name '" + productName + "' not found in Firestore.");
+                        Toast.makeText(UpdateActivity.this, "Product unit type not found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching product unit type: ", e);
+                    Toast.makeText(UpdateActivity.this, "Error fetching unit type: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
 
     private void updateData() {
         if (!isNetworkAvailable()) {
@@ -129,21 +128,14 @@ public class UpdateActivity extends AppCompatActivity {
 
         String prodName = uploadProd.getText().toString().trim();
         String prodDesc = uploadDesc.getText().toString().trim();
-        String prodGroup = groupSpinner.getSelectedItem().toString();
+        String prodGroup = uploadGroup.getText().toString(); // Non-editable, retrieved from intent
         String prodQtyStr = uploadQty.getText().toString().trim();
         String prodCostStr = uploadCost.getText().toString().trim();
-        String prodUnitType = unitTypeSpinner.getSelectedItem().toString();
+        String prodUnitType = unitType.getText().toString(); // Non-editable, retrieved from intent
 
-        // Check for empty fields, allowing "N/A" for description
         if (prodName.isEmpty() || prodGroup.isEmpty() || prodQtyStr.isEmpty() || prodCostStr.isEmpty() ||
                 (prodDesc.isEmpty() && !prodDesc.equals("N/A"))) {
             Toast.makeText(UpdateActivity.this, "Please fill all fields (Description can be 'N/A')", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Validate that description is "N/A" or a valid string
-        if (!prodDesc.equals("N/A") && prodDesc.isEmpty()) {
-            Toast.makeText(UpdateActivity.this, "Description cannot be empty, use 'N/A' if not applicable", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -151,17 +143,14 @@ public class UpdateActivity extends AppCompatActivity {
         double prodCost = Double.parseDouble(prodCostStr);
         double prodTotalPrice = prodQty * prodCost;
 
-        // Log for debugging
         Log.d(TAG, "Updating product with name: '" + prodName + "'");
 
-        // Check if the document exists by name
         db.collection("products").whereEqualTo("prodName", prodName).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0); // Get the first matching document
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                         Log.d(TAG, "Document exists. Proceeding with update.");
 
-                        // Prepare the update data
                         String documentId = documentSnapshot.getId();
                         updateProduct(documentId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, prodUnitType);
                     } else {

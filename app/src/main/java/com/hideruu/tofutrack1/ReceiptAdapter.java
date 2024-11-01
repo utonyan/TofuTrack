@@ -14,8 +14,8 @@ import java.util.Locale;
 public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptViewHolder> {
 
     private List<Receipt> receiptList;
-    // Date formatter for a readable date and time format (24-hour format)
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+    // Date formatter for a readable date and time format (12-hour format)
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, MMM dd, yyyy", Locale.getDefault());
 
     public ReceiptAdapter(List<Receipt> receiptList) {
         this.receiptList = receiptList;
@@ -32,10 +32,13 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptV
     public void onBindViewHolder(@NonNull ReceiptViewHolder holder, int position) {
         Receipt receipt = receiptList.get(position);
 
+        // Set the document name
+        holder.documentName.setText(receipt.getDocumentName());
+
         // Set the total cost
         holder.totalCost.setText(String.format("₱%.2f", receipt.getTotalCost()));
 
-        // Format the date to include time in 24-hour format
+        // Format the date to include time in 12-hour format
         holder.dateTime.setText(dateFormat.format(receipt.getDateTime()));
 
         // Clear previous product views
@@ -67,14 +70,15 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptV
     }
 
     static class ReceiptViewHolder extends RecyclerView.ViewHolder {
-        TextView totalCost, dateTime;
-        LinearLayout productsLayout; // Add this line
+        TextView totalCost, dateTime, documentName; // Add documentName here
+        LinearLayout productsLayout;
 
         public ReceiptViewHolder(@NonNull View itemView) {
             super(itemView);
+            documentName = itemView.findViewById(R.id.documentNameTextView); // Initialize documentName
             totalCost = itemView.findViewById(R.id.totalCostTextView);
             dateTime = itemView.findViewById(R.id.dateTimeTextView);
-            productsLayout = itemView.findViewById(R.id.productsLayout); // Initialize this
+            productsLayout = itemView.findViewById(R.id.productsLayout);
         }
     }
 }

@@ -222,7 +222,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
         if (isAlarmSet) {
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);
-                alarmTimeDisplay.setText("Production canceled（>﹏<）");
+                alarmTimeDisplay.setText("Production canceled");
 
                 // Clear the saved alarm state
                 SharedPreferences.Editor editor = prefs.edit();

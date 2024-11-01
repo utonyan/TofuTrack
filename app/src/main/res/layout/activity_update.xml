@@ -61,13 +61,16 @@
                 android:textColor="@color/black" />
 
             <!-- Spinner for Product Group -->
-            <Spinner
-                android:id="@+id/uploadGroupSpinner"
+            <EditText
+                android:id="@+id/uploadGroup"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/red_border"
-                android:padding="16dp" />
+                android:hint="Product Group"
+                android:padding="16dp"
+                android:textColor="@color/black"
+                android:enabled="false" />
 
             <EditText
                 android:id="@+id/uploadQty"
@@ -82,13 +85,16 @@
                 android:textColor="@color/black" />
 
             <!-- Spinner for Unit Type -->
-            <Spinner
-                android:id="@+id/unitTypeSpinner"
+            <EditText
+                android:id="@+id/unitType"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/red_border"
-                android:padding="16dp" />
+                android:hint="Unit Type"
+                android:padding="16dp"
+                android:textColor="@color/black"
+                android:enabled="false" />
 
             <EditText
                 android:id="@+id/uploadCost"
