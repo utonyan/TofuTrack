@@ -44,8 +44,30 @@
             android:text="Price: $0.00"
             android:textSize="16sp"
             android:textColor="@android:color/black"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="16dp" />
 
+        <!-- Buttons for editing quantity and deleting the item -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:background="@drawable/btn_rounded_corner"
+                android:id="@+id/editQuantityButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Qty"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:background="@drawable/btn_rounded_corner"
+                android:id="@+id/deleteItemButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete" />
+        </LinearLayout>
 
     </LinearLayout>
 

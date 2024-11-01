@@ -137,6 +137,12 @@ public class posActivity extends AppCompatActivity {
             if (!quantityStr.isEmpty()) {
                 int quantityToAdd = Integer.parseInt(quantityStr);
 
+                // Check if quantity is greater than 0
+                if (quantityToAdd <= 0) {
+                    Toast.makeText(this, "Quantity must be greater than 0", Toast.LENGTH_SHORT).show();
+                    return; // Exit the method if quantity is 0 or less
+                }
+
                 // Get current quantity in the cart for this product
                 int currentQuantityInCart = 0;
                 for (CartItem item : ShoppingCart.getCartItems()) {

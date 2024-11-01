@@ -33,6 +33,7 @@
 
         <!-- Shopping Cart Text -->
         <TextView
+            android:visibility="invisible"
             android:id="@+id/shopping_cart_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,6 +47,7 @@
 
         <!-- Cart Item Count -->
         <TextView
+            android:visibility="invisible"
             android:id="@+id/cartItemCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
