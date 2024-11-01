@@ -26,4 +26,13 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
+    <style name="RoundedSquareImageView">
+        <item name="shapeAppearanceOverlay">@style/RoundedSquare</item>
+    </style>
+
+    <style name="RoundedSquare">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item> <!-- Adjust this value for desired rounding -->
+    </style>
 </resources>

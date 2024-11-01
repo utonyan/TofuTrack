@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,27 +50,47 @@ public class CartActivity extends AppCompatActivity {
         cartAdapter = new CartAdapter(cartItems);
         recyclerView.setAdapter(cartAdapter);
 
-        // Setup Clear Cart button
+// Setup Clear Cart button
         Button clearCartButton = findViewById(R.id.clearCartButton);
         clearCartButton.setOnClickListener(v -> {
-            ShoppingCart.clearCart();
-            cartAdapter.notifyDataSetChanged(); // Notify the adapter to refresh the RecyclerView
-            Toast.makeText(CartActivity.this, "Cart cleared", Toast.LENGTH_SHORT).show();
+            if (cartItems.isEmpty()) {
+                Toast.makeText(CartActivity.this, "Your cart is already empty", Toast.LENGTH_SHORT).show();
+            } else {
+                new AlertDialog.Builder(CartActivity.this)
+                        .setTitle("Confirm Clear Cart")
+                        .setMessage("Are you sure you want to clear your cart?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            ShoppingCart.clearCart();
+                            cartAdapter.notifyDataSetChanged(); // Notify the adapter to refresh the RecyclerView
+                            Toast.makeText(CartActivity.this, "Cart cleared", Toast.LENGTH_SHORT).show();
 
-            // Reset the cart item count in posActivity
-            updateCartItemCountInPOS();
+                            // Reset the cart item count in posActivity
+                            updateCartItemCountInPOS();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
         });
 
-        // Setup Checkout button
+
+// Setup Checkout button
         checkoutButton = findViewById(R.id.checkoutButton);
         checkoutButton.setEnabled(isNetworkAvailable()); // Disable if no network
         checkoutButton.setOnClickListener(v -> {
-            if (isNetworkAvailable()) {
-                checkout();
+            if (cartItems.isEmpty()) {
+                Toast.makeText(CartActivity.this, "Your cart is empty. Please add items to the cart before checking out.", Toast.LENGTH_SHORT).show();
+            } else if (isNetworkAvailable()) {
+                new AlertDialog.Builder(CartActivity.this)
+                        .setTitle("Confirm Checkout")
+                        .setMessage("Are you sure you want to proceed to checkout?")
+                        .setPositiveButton("Yes", (dialog, which) -> checkout())
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .show();
             } else {
                 Toast.makeText(CartActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     // Method to check network connectivity
