@@ -71,7 +71,7 @@ public class posActivity extends AppCompatActivity {
 
         // Register the receiver for cart item count updates
         IntentFilter filter = new IntentFilter("com.hideruu.tofutrack1.UPDATE_CART_ITEM_COUNT");
-        registerReceiver(cartItemCountReceiver, filter);
+        registerReceiver(cartItemCountReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 
     private void fetchData() {

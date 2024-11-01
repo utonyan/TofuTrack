@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -129,22 +130,46 @@ public class CartActivity extends AppCompatActivity {
                         // Increment the completed count and check if all queries are done
                         completedCount.updateAndGet(v -> v + 1);
                         if (completedCount.get() == totalItems) {
-                            // After processing all items, create and save the receipt
-                            String documentName = "SalesRecord_" + String.format("%02d", getNextReceiptId()); // Format as SalesRecord_01
-                            saveReceipt(receiptItems, totalCost.get(), documentName); // Pass the document name to the save method
-
-                            // Clear the cart after processing all items
-                            ShoppingCart.clearCart();
-                            cartAdapter.notifyDataSetChanged(); // Refresh the RecyclerView
-
-                            // Notify posActivity to refresh its product list
-                            updateCartItemCountInPOS();
-
-                            // Close the CartActivity
-                            finish();
+                            // After processing all items, check for existing receipt
+                            checkAndSaveReceipt(receiptItems, totalCost.get());
                         }
                     });
         }
+    }
+
+    // Method to check if a SalesRecord exists and save or update accordingly
+    private void checkAndSaveReceipt(List<ReceiptItem> receiptItems, double totalCost) {
+        String documentName = "SalesRecord_" + String.format("%02d", getNextReceiptId()); // Format as SalesRecord_01
+
+        db.collection("receipts")
+                .whereEqualTo("documentName", documentName)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // Receipt already exists, increment count
+                        String existingReceiptId = task.getResult().getDocuments().get(0).getId();
+                        db.collection("receipts").document(existingReceiptId)
+                                .update("count", FieldValue.increment(1)) // Increment the count field
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(CartActivity.this, "Receipt updated: " + documentName, Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(CartActivity.this, "Failed to update receipt: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        // Receipt does not exist, save it
+                        saveReceipt(receiptItems, totalCost, documentName);
+                    }
+                    // Clear the cart after processing all items
+                    ShoppingCart.clearCart();
+                    cartAdapter.notifyDataSetChanged(); // Refresh the RecyclerView
+
+                    // Notify posActivity to refresh its product list
+                    updateCartItemCountInPOS();
+
+                    // Close the CartActivity
+                    finish();
+                });
     }
 
     // Method to get the next receipt ID
@@ -162,7 +187,7 @@ public class CartActivity extends AppCompatActivity {
         db.collection("receipts")
                 .add(receipt)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(CartActivity.this, "Receipt saved: " + documentReference.getId(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(CartActivity.this, "Receipt saved: " + documentReference.getId(), Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(CartActivity.this, "Failed to save receipt: " + e.getMessage(), Toast.LENGTH_SHORT).show();

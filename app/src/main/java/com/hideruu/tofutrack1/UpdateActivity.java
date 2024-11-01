@@ -31,6 +31,7 @@ public class UpdateActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private String productName;
+    private int currentQty; // To hold the current quantity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,7 @@ public class UpdateActivity extends AppCompatActivity {
             productName = intent.getStringExtra("prodName");
             String desc = intent.getStringExtra("prodDesc");
             String group = intent.getStringExtra("prodGroup");
-            int qty = intent.getIntExtra("prodQty", 0);
+            currentQty = intent.getIntExtra("prodQty", 0); // Retrieve current quantity
             double cost = intent.getDoubleExtra("prodCost", 0.0);
             String prodUnitType = intent.getStringExtra("prodUnitType");
 
@@ -80,7 +81,7 @@ public class UpdateActivity extends AppCompatActivity {
                 uploadDesc.setText("");
             }
 
-            uploadQty.setText(String.valueOf(qty));
+            uploadQty.setText(String.valueOf(currentQty)); // Use current quantity here
             uploadCost.setText(String.format(Locale.getDefault(), "%.2f", cost));
 
             // Set non-editable group field
@@ -119,7 +120,6 @@ public class UpdateActivity extends AppCompatActivity {
                 });
     }
 
-
     private void updateData() {
         if (!isNetworkAvailable()) {
             Toast.makeText(UpdateActivity.this, "No internet connection. Please try again later.", Toast.LENGTH_SHORT).show();
@@ -139,9 +139,15 @@ public class UpdateActivity extends AppCompatActivity {
             return;
         }
 
-        int prodQty = Integer.parseInt(prodQtyStr);
+        int newProdQty = Integer.parseInt(prodQtyStr);
         double prodCost = Double.parseDouble(prodCostStr);
-        double prodTotalPrice = prodQty * prodCost;
+        double prodTotalPrice = newProdQty * prodCost;
+
+        // Check if the new quantity is less than the current quantity
+        if (newProdQty < currentQty) {
+            Toast.makeText(UpdateActivity.this, "Quantity cannot be less than the current quantity", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         Log.d(TAG, "Updating product with name: '" + prodName + "'");
 
@@ -152,7 +158,7 @@ public class UpdateActivity extends AppCompatActivity {
                         Log.d(TAG, "Document exists. Proceeding with update.");
 
                         String documentId = documentSnapshot.getId();
-                        updateProduct(documentId, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice, prodUnitType);
+                        updateProduct(documentId, prodName, prodDesc, prodGroup, newProdQty, prodCost, prodTotalPrice, prodUnitType);
                     } else {
                         Toast.makeText(UpdateActivity.this, "Product not found", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Product with name '" + prodName + "' does not exist.");
@@ -209,14 +215,15 @@ public class UpdateActivity extends AppCompatActivity {
         updateRecord.put("timestamp", formattedDate); // Add the formatted date to the record
 
         // Add a new document to the product_updates collection
-        db.collection("product_updates").add(updateRecord)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Update record added successfully."))
-                .addOnFailureListener(e -> Log.e(TAG, "Error adding update record: ", e));
+        db.collection("product_updates")
+                .add(updateRecord)
+                .addOnSuccessListener(documentReference -> Log.d(TAG, "Update record saved successfully: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.e(TAG, "Error saving update record: ", e));
     }
 
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
