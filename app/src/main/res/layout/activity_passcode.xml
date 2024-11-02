@@ -15,41 +15,22 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:letterSpacing="0.08"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="30dp"
-        android:text="Enter your passcode:"
+        android:text="Tofutrack is Locked"
         android:textSize="25sp"
         android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/emailEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Passcode"
-        android:layout_margin="10dp"
-        android:padding="10dp"
-        android:background="@drawable/edit_text_rounded_corner"
-        android:elevation="5dp"
-        android:inputType="numberPassword"
-        android:maxLength="6" /> <!-- Limit the input to 6 characters -->
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminateTint="@color/my_primary"
-        android:visibility="gone" />
 
     <Button
         android:layout_marginTop="50dp"
         android:id="@+id/loginButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enter"
+        android:text="Unlock"
         android:textColor="@color/off_white"
         android:background="@drawable/btn_rounded_corner"/>
+
 
 </LinearLayout>
