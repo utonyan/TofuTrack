@@ -14,7 +14,6 @@
     <string-array name="product_groups">
         <item>Product</item>
         <item>Raw Material</item>
-        <item>Cleaning Material</item>
         <item>Packaging</item>
     </string-array>
 

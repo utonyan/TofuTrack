@@ -36,7 +36,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
     public static final String KEY_ALARM_TIME = "alarm_time";
     public static final String KEY_ALARM_QUANTITY = "alarm_quantity";
 
-    private TextView alarmTimeDisplay, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice;
+    private TextView alarmTimeDisplay, SoyTimer, prodName, prodDesc, prodGroup, prodQty, prodCost, prodTotalPrice;
     private Button setAlarmButton, cancelAlarmButton;
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
@@ -63,6 +63,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
 
     private void initializeViews() {
         alarmTimeDisplay = findViewById(R.id.alarmTimeDisplay);
+        SoyTimer = findViewById(R.id.SoyTimer);
         setAlarmButton = findViewById(R.id.setAlarmButton);
         cancelAlarmButton = findViewById(R.id.cancelAlarmButton);
         prodName = findViewById(R.id.prodName);
@@ -98,9 +99,12 @@ public class ProductionDetailActivity extends AppCompatActivity {
         if (isAlarmSet) {
             String alarmTime = prefs.getString(KEY_ALARM_TIME, "Not Set");
             int alarmQuantity = prefs.getInt(KEY_ALARM_QUANTITY, 0);
-            alarmTimeDisplay.setText("Current Production: " + alarmTime + " for quantity: " + alarmQuantity);
+            //alarmTimeDisplay.setText("Current Production: " + alarmTime + " for quantity: " + alarmQuantity);
+            alarmTimeDisplay.setText("Current Production for quantity: " + alarmQuantity);
+            SoyTimer.setText(alarmTime);
         } else {
             alarmTimeDisplay.setText("No active production set");
+            SoyTimer.setText("--:--");
         }
     }
 
@@ -193,13 +197,10 @@ public class ProductionDetailActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_PROD_NAME, prodName.getText().toString());
         pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-        } else {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-        }
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 
-        alarmTimeDisplay.setText("Production set for: " + selectedHour + ":" + String.format("%02d", selectedMinute));
+        alarmTimeDisplay.setText("Production confirmed");
+        SoyTimer.setText(selectedHour + ":" + String.format("%02d", selectedMinute));
         Toast.makeText(this, "Production set!", Toast.LENGTH_SHORT).show();
 
         // Save alarm state
@@ -214,7 +215,6 @@ public class ProductionDetailActivity extends AppCompatActivity {
         updateProductQuantity(quantityToSubtract);
     }
 
-
     private void cancelAlarm() {
         if (!isInternetAvailable()) {
             Toast.makeText(this, "No internet connection! Cannot cancel Production.", Toast.LENGTH_SHORT).show();
@@ -228,6 +228,7 @@ public class ProductionDetailActivity extends AppCompatActivity {
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);
                 alarmTimeDisplay.setText("Production canceled");
+                SoyTimer.setText("--:--");
 
                 // Clear the saved alarm state
                 SharedPreferences.Editor editor = prefs.edit();

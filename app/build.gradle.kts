@@ -61,4 +61,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    //Fingerprint
+    implementation("androidx.biometric:biometric:1.1.0")
+
 }
