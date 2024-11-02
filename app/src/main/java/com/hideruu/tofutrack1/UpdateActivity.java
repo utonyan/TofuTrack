@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -149,26 +150,35 @@ public class UpdateActivity extends AppCompatActivity {
             return;
         }
 
-        Log.d(TAG, "Updating product with name: '" + prodName + "'");
+        // Show confirmation dialog
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Update")
+                .setMessage("Are you sure you want to update this product?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    Log.d(TAG, "Updating product with name: '" + prodName + "'");
 
-        db.collection("products").whereEqualTo("prodName", prodName).get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
-                        Log.d(TAG, "Document exists. Proceeding with update.");
+                    db.collection("products").whereEqualTo("prodName", prodName).get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                                    Log.d(TAG, "Document exists. Proceeding with update.");
 
-                        String documentId = documentSnapshot.getId();
-                        updateProduct(documentId, prodName, prodDesc, prodGroup, newProdQty, prodCost, prodTotalPrice, prodUnitType);
-                    } else {
-                        Toast.makeText(UpdateActivity.this, "Product not found", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Product with name '" + prodName + "' does not exist.");
-                    }
+                                    String documentId = documentSnapshot.getId();
+                                    updateProduct(documentId, prodName, prodDesc, prodGroup, newProdQty, prodCost, prodTotalPrice, prodUnitType);
+                                } else {
+                                    Toast.makeText(UpdateActivity.this, "Product not found", Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, "Product with name '" + prodName + "' does not exist.");
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(UpdateActivity.this, "Error checking product: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "Error checking product: ", e);
+                            });
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(UpdateActivity.this, "Error checking product: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Error checking product: ", e);
-                });
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
     }
+
 
     private void updateProduct(String documentId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String prodUnitType) {
         // Create a map for the update data

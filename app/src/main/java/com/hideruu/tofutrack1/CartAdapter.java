@@ -101,9 +101,19 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         }
 
         private void deleteItem(int position) {
-            cartItems.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, cartItems.size());
+            // Create a confirmation dialog
+            new AlertDialog.Builder(itemView.getContext())
+                    .setTitle("Confirm Deletion")
+                    .setMessage("Are you sure you want to delete this item from your cart?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        cartItems.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, cartItems.size());
+                        Toast.makeText(itemView.getContext(), "Item deleted", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
         }
+
     }
 }

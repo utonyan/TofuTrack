@@ -33,13 +33,13 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptV
         Receipt receipt = receiptList.get(position);
 
         // Set the document name
-        holder.documentName.setText(receipt.getDocumentName());
+        holder.documentName.setText("ID:" + receipt.getDocumentName());
 
         // Set the total cost
-        holder.totalCost.setText(String.format("₱%.2f", receipt.getTotalCost()));
+        holder.totalCost.setText(String.format("Total: " +"₱%.2f", receipt.getTotalCost()));
 
         // Format the date to include time in 12-hour format
-        holder.dateTime.setText(dateFormat.format(receipt.getDateTime()));
+        holder.dateTime.setText("Date: " + dateFormat.format(receipt.getDateTime()));
 
         // Clear previous product views
         holder.productsLayout.removeAllViews();

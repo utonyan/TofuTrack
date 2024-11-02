@@ -24,7 +24,7 @@
             android:layout_marginBottom="10dp"
             android:scaleType="centerCrop"
             android:src="@drawable/uploadimg"
-            app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+            app:shapeAppearanceOverlay="@style/RoundedSquare"
             app:layout_constraintBottom_toTopOf="@+id/prodName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
