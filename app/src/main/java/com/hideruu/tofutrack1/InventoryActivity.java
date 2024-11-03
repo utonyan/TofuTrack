@@ -114,12 +114,8 @@ public class InventoryActivity extends AppCompatActivity {
                         originalProductList.clear(); // Clear original product list
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass product = document.toObject(DataClass.class);
-
-                            // Exclude products with the "Product" group
-                            if (!"Product".equalsIgnoreCase(product.getProdGroup())) {
-                                productList.add(product);
-                                originalProductList.add(product); // Add to original list as well
-                            }
+                            productList.add(product); // Add all products
+                            originalProductList.add(product); // Add to original list as well
                         }
                         // Sort both lists alphabetically by product name
                         sortProductsAlphabetically(productList);
@@ -196,7 +192,7 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     private void showGroupSelectionDialog() {
-        String[] productGroups = getResources().getStringArray(R.array.product_groups1);
+        String[] productGroups = getResources().getStringArray(R.array.product_groups);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Select Product Group")
@@ -226,12 +222,19 @@ public class InventoryActivity extends AppCompatActivity {
     private void filterProductsByGroup(String selectedGroup) {
         progressBar.setVisibility(View.VISIBLE); // Show progress bar
         List<DataClass> filteredList = new ArrayList<>();
-        for (DataClass product : productList) {
-            if (product.getProdGroup().equalsIgnoreCase(selectedGroup)) {
-                filteredList.add(product); // Add matching products
+
+        // Load all products and filter only if a group is selected
+        if (currentlySelectedGroup != null && !currentlySelectedGroup.isEmpty()) {
+            for (DataClass product : originalProductList) {
+                if (product.getProdGroup().equalsIgnoreCase(selectedGroup)) {
+                    filteredList.add(product); // Add matching products
+                }
             }
+            adapter.updateProductList(filteredList); // Update the adapter with the filtered list
+        } else {
+            adapter.updateProductList(originalProductList); // Show all products if no group is selected
         }
-        adapter.updateProductList(filteredList); // Update the adapter with the filtered list
+
         progressBar.setVisibility(View.GONE); // Hide progress bar
     }
 

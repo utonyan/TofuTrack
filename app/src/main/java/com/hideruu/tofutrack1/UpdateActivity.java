@@ -144,10 +144,19 @@ public class UpdateActivity extends AppCompatActivity {
         double prodCost = Double.parseDouble(prodCostStr);
         double prodTotalPrice = newProdQty * prodCost;
 
-        // Check if the new quantity is less than the current quantity
-        if (newProdQty < currentQty) {
-            Toast.makeText(UpdateActivity.this, "Quantity cannot be less than the current quantity", Toast.LENGTH_SHORT).show();
-            return;
+        // Check if the product group is "Product"
+        if ("Product".equalsIgnoreCase(prodGroup)) {
+            // Allow updating prodQty only if it matches currentQty
+            if (newProdQty != currentQty) {
+                Toast.makeText(UpdateActivity.this, "Go to the Production module to update the quantity", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            // For other groups, ensure the quantity is valid (you can set your own logic)
+            if (newProdQty < 0) {
+                Toast.makeText(UpdateActivity.this, "Quantity cannot be negative", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         // Show confirmation dialog
@@ -178,6 +187,7 @@ public class UpdateActivity extends AppCompatActivity {
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
 
 
     private void updateProduct(String documentId, String prodName, String prodDesc, String prodGroup, int prodQty, double prodCost, double prodTotalPrice, String prodUnitType) {
