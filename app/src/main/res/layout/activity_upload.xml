@@ -45,6 +45,7 @@
                 app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
 
             <EditText
+                android:inputType="text"
                 android:id="@+id/uploadProd"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
@@ -53,9 +54,11 @@
                 android:gravity="start|center_vertical"
                 android:hint="Enter Product"
                 android:padding="16dp"
+                android:imeOptions="actionNext"
                 android:textColor="@color/black" />
 
             <EditText
+                android:inputType="text"
                 android:id="@+id/uploadDesc"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
@@ -64,6 +67,7 @@
                 android:gravity="start|center_vertical"
                 android:hint="Enter Description"
                 android:padding="16dp"
+                android:imeOptions="actionDone"
                 android:textColor="@color/black" />
 
             <!-- Spinner for Product Group -->
@@ -85,6 +89,7 @@
                 android:hint="Enter Quantity"
                 android:inputType="number"
                 android:padding="16dp"
+                android:imeOptions="actionNext"
                 android:textColor="@color/black" />
 
             <!-- Spinner for Unit Type -->
@@ -106,6 +111,7 @@
                 android:hint="Enter cost/unit"
                 android:inputType="numberDecimal"
                 android:padding="16dp"
+                android:imeOptions="actionDone"
                 android:textColor="@color/black" />
 
             <Button

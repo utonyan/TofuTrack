@@ -26,7 +26,7 @@ public class ProductionActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FirebaseFirestore db;
     private static final String RAW_MATERIAL_GROUP = "Raw Material"; // Group to filter
-    private static final String TARGET_PRODUCT_NAME = "Soybean"; // Product name to filter for
+    private static final String TARGET_PRODUCT_NAME = "Soybean (Raw)"; // Product name to filter for
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -44,6 +44,7 @@
         android:layout_marginStart="8dp"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:imeOptions="actionDone"
         android:background="@android:drawable/edit_text"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
