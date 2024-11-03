@@ -61,8 +61,7 @@
             android:exported="false" />
         <activity
             android:name=".DashboardActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:exported="false" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
@@ -81,8 +80,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".SplashActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
