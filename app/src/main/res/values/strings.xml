@@ -2,6 +2,8 @@
     <string name="app_name">TofuTrack</string>
     <string name="select_product">Select Product</string>
 
+    <string name="dev">Developed by @hideru_osu and @0_r_i_g_i_n</string>
+
     <string-array name="unit_types">
         <item>pc/pcs</item>
         <item>kg</item>

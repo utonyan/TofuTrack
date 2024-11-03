@@ -94,9 +94,8 @@ public class FoodProdActivity extends AppCompatActivity {
                             DataClass product = document.toObject(DataClass.class);
                             productList.add(product);
                         }
-                        // Sort by quantity (ascending), then by product name alphabetically
-                        Collections.sort(productList, Comparator.comparingInt(DataClass::getProdQty)
-                                .thenComparing(DataClass::getProdName));
+                        // Sort alphabetically by product name
+                        Collections.sort(productList, Comparator.comparing(DataClass::getProdName));
 
                         productAdapter = new ProductAdapter(this, productList);
                         productSpinner.setAdapter(productAdapter);
@@ -123,9 +122,8 @@ public class FoodProdActivity extends AppCompatActivity {
                             DataClass material = document.toObject(DataClass.class);
                             list.add(material);
                         }
-                        // Sort by quantity (ascending), then by product name alphabetically
-                        Collections.sort(list, Comparator.comparingInt(DataClass::getProdQty)
-                                .thenComparing(DataClass::getProdName));
+                        // Sort alphabetically by product name
+                        Collections.sort(list, Comparator.comparing(DataClass::getProdName));
 
                         MaterialAdapter adapter = new MaterialAdapter(this, list, recyclerView);
                         recyclerView.setAdapter(adapter);
@@ -137,6 +135,7 @@ public class FoodProdActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void confirmSelection() {
         DataClass selectedProduct = (DataClass) productSpinner.getSelectedItem();
@@ -154,6 +153,12 @@ public class FoodProdActivity extends AppCompatActivity {
 
         int productionQuantity = Integer.parseInt(productionQtyStr);
 
+        // Check if production quantity is greater than zero
+        if (productionQuantity <= 0) {
+            Toast.makeText(this, "Production quantity must be greater than 0", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Check if selected quantities of raw materials and packaging are valid
         if (!rawMaterialAdapter.hasSelectedItems() || !packagingAdapter.hasSelectedItems()) {
             Toast.makeText(this, "Please select at least one raw material and one packaging item", Toast.LENGTH_SHORT).show();
@@ -165,12 +170,6 @@ public class FoodProdActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if the production quantity is greater than current stock
-        if (productionQuantity <= 0 || productionQuantity > selectedProduct.getProdQty()) {
-            Toast.makeText(this, "Production quantity must be greater than 0 and less than or equal to current stock", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         // Deduct quantities from raw materials and packaging before updating the product
         rawMaterialAdapter.deductQuantitiesInFirestore(db);
         packagingAdapter.deductQuantitiesInFirestore(db);
@@ -178,6 +177,7 @@ public class FoodProdActivity extends AppCompatActivity {
         // Update the product quantity and total price in Firestore
         updateQuantitiesInFirestore(selectedProduct, productionQuantity);
     }
+
 
     private void updateQuantitiesInFirestore(DataClass selectedProduct, int productionQuantity) {
         int newProductQty = selectedProduct.getProdQty() + productionQuantity; // Update quantity based on production

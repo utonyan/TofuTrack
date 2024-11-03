@@ -24,7 +24,7 @@
         <ImageView
             android:layout_width="180dp"
             android:layout_height="180dp"
-            android:src="@drawable/loogo05" />
+            android:src="@drawable/loogo06" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Developed by @hideru_osu"
+        android:text="@string/dev"
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:layout_marginBottom="40dp"
