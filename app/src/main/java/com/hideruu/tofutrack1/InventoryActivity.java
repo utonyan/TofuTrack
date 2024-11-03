@@ -117,9 +117,9 @@ public class InventoryActivity extends AppCompatActivity {
                             productList.add(product); // Add all products
                             originalProductList.add(product); // Add to original list as well
                         }
-                        // Sort both lists alphabetically by product name
-                        sortProductsAlphabetically(productList);
-                        sortProductsAlphabetically(originalProductList);
+                        // Sort both lists by group and then alphabetically by product name
+                        sortProductsByGroupAndName(productList);
+                        sortProductsByGroupAndName(originalProductList);
 
                         adapter.notifyDataSetChanged();
                     } else {
@@ -149,9 +149,9 @@ public class InventoryActivity extends AppCompatActivity {
                             originalProductList.add(product); // Add to original list as well
                         }
                     }
-                    // Sort both lists alphabetically by product name
-                    sortProductsAlphabetically(productList);
-                    sortProductsAlphabetically(originalProductList);
+                    // Sort both lists by group and then alphabetically by product name
+                    sortProductsByGroupAndName(productList);
+                    sortProductsByGroupAndName(originalProductList);
 
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
@@ -162,9 +162,23 @@ public class InventoryActivity extends AppCompatActivity {
                 });
     }
 
+    private void sortProductsByGroupAndName(List<DataClass> products) {
+        Collections.sort(products, (p1, p2) -> {
+            int groupComparison = compareGroups(p1.getProdGroup(), p2.getProdGroup());
+            if (groupComparison != 0) {
+                return groupComparison; // Return group comparison result
+            }
+            return p1.getProdName().compareToIgnoreCase(p2.getProdName()); // Sort alphabetically by name
+        });
+    }
 
-    private void sortProductsAlphabetically(List<DataClass> products) {
-        Collections.sort(products, (p1, p2) -> p1.getProdName().compareToIgnoreCase(p2.getProdName()));
+    private int compareGroups(String group1, String group2) {
+        if ("Product".equalsIgnoreCase(group1) && !"Product".equalsIgnoreCase(group2)) {
+            return 1; // group1 comes after group2
+        } else if (!"Product".equalsIgnoreCase(group1) && "Product".equalsIgnoreCase(group2)) {
+            return -1; // group1 comes before group2
+        }
+        return group1.compareToIgnoreCase(group2); // Otherwise, sort normally
     }
 
     private void searchProducts(String query) {
@@ -227,26 +241,16 @@ public class InventoryActivity extends AppCompatActivity {
         if (currentlySelectedGroup != null && !currentlySelectedGroup.isEmpty()) {
             for (DataClass product : originalProductList) {
                 if (product.getProdGroup().equalsIgnoreCase(selectedGroup)) {
-                    filteredList.add(product); // Add matching products
+                    filteredList.add(product); // Add products that match the selected group
                 }
             }
-            adapter.updateProductList(filteredList); // Update the adapter with the filtered list
+            productList.clear(); // Clear current product list
+            productList.addAll(filteredList); // Add filtered products
+            adapter.notifyDataSetChanged(); // Notify adapter
         } else {
-            adapter.updateProductList(originalProductList); // Show all products if no group is selected
+            // If no group is selected, fetch all data
+            fetchData();
         }
-
         progressBar.setVisibility(View.GONE); // Hide progress bar
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
-            fetchData(); // Reload data when coming back from UploadActivity
-        } else if (requestCode == REQUEST_CODE_DELETE && resultCode == RESULT_OK) {
-            fetchData(); // Reload data when coming back after deletion
-        } else if (requestCode == REQUEST_CODE_UPDATE && resultCode == RESULT_OK) {
-            fetchData(); // Reload data when coming back from UpdateActivity
-        }
     }
 }
