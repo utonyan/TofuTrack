@@ -18,6 +18,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class FoodProdActivity extends AppCompatActivity {
@@ -92,6 +94,10 @@ public class FoodProdActivity extends AppCompatActivity {
                             DataClass product = document.toObject(DataClass.class);
                             productList.add(product);
                         }
+                        // Sort by quantity (ascending), then by product name alphabetically
+                        Collections.sort(productList, Comparator.comparingInt(DataClass::getProdQty)
+                                .thenComparing(DataClass::getProdName));
+
                         productAdapter = new ProductAdapter(this, productList);
                         productSpinner.setAdapter(productAdapter);
                     }
@@ -117,6 +123,10 @@ public class FoodProdActivity extends AppCompatActivity {
                             DataClass material = document.toObject(DataClass.class);
                             list.add(material);
                         }
+                        // Sort by quantity (ascending), then by product name alphabetically
+                        Collections.sort(list, Comparator.comparingInt(DataClass::getProdQty)
+                                .thenComparing(DataClass::getProdName));
+
                         MaterialAdapter adapter = new MaterialAdapter(this, list, recyclerView);
                         recyclerView.setAdapter(adapter);
                         if (group.equals("Raw Material")) {

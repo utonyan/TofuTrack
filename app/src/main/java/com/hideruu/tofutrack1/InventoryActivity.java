@@ -114,8 +114,12 @@ public class InventoryActivity extends AppCompatActivity {
                         originalProductList.clear(); // Clear original product list
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass product = document.toObject(DataClass.class);
-                            productList.add(product);
-                            originalProductList.add(product); // Add to original list as well
+
+                            // Exclude products with the "Product" group
+                            if (!"Product".equalsIgnoreCase(product.getProdGroup())) {
+                                productList.add(product);
+                                originalProductList.add(product); // Add to original list as well
+                            }
                         }
                         // Sort both lists alphabetically by product name
                         sortProductsAlphabetically(productList);
@@ -142,8 +146,12 @@ public class InventoryActivity extends AppCompatActivity {
                     originalProductList.clear(); // Clear original product list
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         DataClass product = document.toObject(DataClass.class);
-                        productList.add(product);
-                        originalProductList.add(product); // Add to original list as well
+
+                        // Exclude products with the "Product" group
+                        if (!"Product".equalsIgnoreCase(product.getProdGroup())) {
+                            productList.add(product);
+                            originalProductList.add(product); // Add to original list as well
+                        }
                     }
                     // Sort both lists alphabetically by product name
                     sortProductsAlphabetically(productList);
@@ -157,6 +165,7 @@ public class InventoryActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                 });
     }
+
 
     private void sortProductsAlphabetically(List<DataClass> products) {
         Collections.sort(products, (p1, p2) -> p1.getProdName().compareToIgnoreCase(p2.getProdName()));
@@ -187,7 +196,7 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     private void showGroupSelectionDialog() {
-        String[] productGroups = getResources().getStringArray(R.array.product_groups);
+        String[] productGroups = getResources().getStringArray(R.array.product_groups1);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Select Product Group")

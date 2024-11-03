@@ -18,6 +18,11 @@
         <item>Packaging</item>
     </string-array>
 
+    <string-array name="product_groups1">
+        <item>Raw Material</item>
+        <item>Packaging</item>
+    </string-array>
+
     <string-array name="time_periods">
         <item>Daily</item>
         <item>Weekly</item>
