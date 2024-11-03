@@ -169,7 +169,6 @@ public class FoodProdActivity extends AppCompatActivity {
         updateQuantitiesInFirestore(selectedProduct, productionQuantity);
     }
 
-
     private void updateQuantitiesInFirestore(DataClass selectedProduct, int productionQuantity) {
         int newProductQty = selectedProduct.getProdQty() + productionQuantity; // Update quantity based on production
         double prodCost = selectedProduct.getProdCost(); // Get the current cost per unit
@@ -181,23 +180,34 @@ public class FoodProdActivity extends AppCompatActivity {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         String documentId = queryDocumentSnapshots.getDocuments().get(0).getId();
+
                         // Update quantity and total price in Firestore
                         db.collection("products")
                                 .document(documentId)
-                                .update("prodQty", newProductQty, "prodTotalPrice", totalPrice) // Ensure prodTotalPrice is updated
+                                .update("prodQty", newProductQty, "prodTotalPrice", totalPrice)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Production completed and quantities updated", Toast.LENGTH_SHORT).show();
 
-                                    // Refresh the product spinner to show updated values
-                                    loadProducts();
+                                    // Store the current spinner position
+                                    int selectedPosition = productSpinner.getSelectedItemPosition();
 
-                                    // Reload raw materials and packaging
+                                    // Refresh raw materials and packaging lists without resetting spinner selection
                                     loadRawMaterials();
                                     loadPackaging();
+
+                                    // Update displayed stock for the currently selected product
+                                    currentStockTextView.setText("Current Stock: " + newProductQty);
+
+                                    // Clear the production quantity EditText
+                                    productionQuantityEditText.setText("");
+
+                                    // Restore the selected spinner position
+                                    productSpinner.setSelection(selectedPosition);
                                 })
                                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to update product quantity", Toast.LENGTH_SHORT).show());
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to retrieve product", Toast.LENGTH_SHORT).show());
     }
+
 }

@@ -1,60 +1,128 @@
 <!-- res/layout/activity_food_prod.xml -->
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <!-- Spinner to select product from Product group -->
-    <Spinner
-        android:id="@+id/productSpinner"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:prompt="@string/select_product" />
-    <TextView
-        android:id="@+id/currentStockTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Current Stock: 0"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp"/>
+        android:orientation="vertical">
 
+        <RelativeLayout
+            android:id="@+id/main_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/my_primary"
+            android:padding="10dp">
 
-    <EditText
-        android:id="@+id/productionQuantityEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter quantity to produce"
-        android:inputType="number" />
+            <TextView
+                android:id="@+id/title_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginStart="10dp"
+                android:layout_centerVertical="true" />
 
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/loogo05"
+                android:layout_toEndOf="@id/title_text"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginStart="3dp" />
+        </RelativeLayout>
 
-    <!-- RecyclerView for Raw Material selection -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="raw_materials" />
+        <LinearLayout
+            android:padding="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rawMaterialRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Product"
+                android:textSize="19sp"
+                android:layout_marginTop="8dp" />
 
-    <!-- RecyclerView for Packaging selection -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="packaging" />
+            <!-- Spinner to select product from Product group -->
+            <Spinner
+                android:background="@drawable/edit_text_rounded_corner"
+                android:id="@+id/productSpinner"
+                android:padding="10dp"
+                android:elevation="5dp"
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:prompt="@string/select_product" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/packagingRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:textStyle="bold"
+                android:id="@+id/currentStockTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Current Stock: 0"
+                android:textSize="19sp"
+                android:layout_marginTop="8dp" />
 
-    <!-- Button to confirm selection -->
-    <Button
-        android:id="@+id/confirmButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Confirm Production" />
-</LinearLayout>
+            <EditText
+                android:padding="10dp"
+                android:elevation="5dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/edit_text_rounded_corner"
+                android:id="@+id/productionQuantityEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Enter quantity to produce"
+                android:inputType="number" />
+
+            <!-- RecyclerView for Raw Material selection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Raw Materials"
+                android:layout_marginTop="16dp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rawMaterialRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"/>
+
+            <!-- RecyclerView for Packaging selection -->
+            <TextView
+                android:id="@+id/packagingTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Packaging"
+                android:layout_marginTop="16dp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/packagingRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"/>
+
+            <!-- Button to confirm selection -->
+            <Button
+                android:background="@drawable/btn_rounded_corner"
+                android:id="@+id/confirmButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Confirm Production"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
