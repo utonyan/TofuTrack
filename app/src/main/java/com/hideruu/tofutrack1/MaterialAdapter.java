@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,17 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
         holder.currentQuantityTextView.setText(String.valueOf(material.getProdQty()));
         holder.quantityEditText.setHint("Enter quantity");
         holder.quantityEditText.setText(""); // Reset quantity field
+
+        // Set the initial state of the checkbox and editText
+        holder.checkbox.setChecked(false);
+        holder.quantityEditText.setEnabled(false); // Disable EditText by default
+
+        holder.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            holder.quantityEditText.setEnabled(isChecked); // Enable or disable EditText based on CheckBox state
+            if (!isChecked) {
+                holder.quantityEditText.setText(""); // Clear the EditText when unchecked
+            }
+        });
     }
 
     @Override
@@ -65,7 +77,6 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
         return true;
     }
 
-    // New method to check if any items are selected
     public boolean hasSelectedItems() {
         for (int i = 0; i < materialList.size(); i++) {
             if (getSelectedQuantity(i) > 0) {
@@ -94,7 +105,6 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
                             String documentId = queryDocumentSnapshots.getDocuments().get(0).getId();
                             db.collection("products").document(documentId)
                                     .update("prodQty", newQuantity)
-                                    //.addOnSuccessListener(aVoid -> Toast.makeText(context, "Quantity updated for " + material.getProdName(), Toast.LENGTH_SHORT).show())
                                     .addOnFailureListener(e -> Toast.makeText(context, "Failed to update quantity for " + material.getProdName(), Toast.LENGTH_SHORT).show());
                         }
                     });
@@ -104,12 +114,14 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView, currentQuantityTextView;
         EditText quantityEditText;
+        CheckBox checkbox; // Add CheckBox reference
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
             currentQuantityTextView = itemView.findViewById(R.id.currentQuantityTextView);
             quantityEditText = itemView.findViewById(R.id.quantityEditText);
+            checkbox = itemView.findViewById(R.id.checkbox); // Initialize CheckBox
         }
     }
 }
