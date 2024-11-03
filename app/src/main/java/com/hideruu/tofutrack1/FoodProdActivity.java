@@ -2,9 +2,11 @@ package com.hideruu.tofutrack1;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +26,7 @@ public class FoodProdActivity extends AppCompatActivity {
     private RecyclerView rawMaterialRecycler, packagingRecycler;
     private Button confirmButton;
     private EditText productionQuantityEditText;
+    private TextView currentStockTextView; // Declare current stock TextView
 
     private FirebaseFirestore db;
     private List<DataClass> productList = new ArrayList<>();
@@ -54,6 +57,23 @@ public class FoodProdActivity extends AppCompatActivity {
         packagingRecycler = findViewById(R.id.packagingRecycler);
         confirmButton = findViewById(R.id.confirmButton);
         productionQuantityEditText = findViewById(R.id.productionQuantityEditText);
+        currentStockTextView = findViewById(R.id.currentStockTextView); // Initialize current stock TextView
+
+        productSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                DataClass selectedProduct = (DataClass) productSpinner.getSelectedItem();
+                if (selectedProduct != null) {
+                    // Update the current stock TextView with the quantity of the selected product
+                    currentStockTextView.setText("Current Stock: " + selectedProduct.getProdQty());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                currentStockTextView.setText("Current Stock: 0");
+            }
+        });
     }
 
     private void setupRecyclerViews() {
@@ -67,6 +87,7 @@ public class FoodProdActivity extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        productList.clear(); // Clear previous data
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass product = document.toObject(DataClass.class);
                             productList.add(product);
@@ -91,6 +112,7 @@ public class FoodProdActivity extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        list.clear(); // Clear previous data
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             DataClass material = document.toObject(DataClass.class);
                             list.add(material);
@@ -122,18 +144,31 @@ public class FoodProdActivity extends AppCompatActivity {
 
         int productionQuantity = Integer.parseInt(productionQtyStr);
 
-        // Check for sufficient quantities in both raw materials and packaging
-        if (rawMaterialAdapter.hasSufficientQuantities() && packagingAdapter.hasSufficientQuantities()) {
-            // Deduct quantities from raw materials and packaging before updating the product
-            rawMaterialAdapter.deductQuantitiesInFirestore(db);
-            packagingAdapter.deductQuantitiesInFirestore(db);
-
-            // Update the product quantity and total price in Firestore
-            updateQuantitiesInFirestore(selectedProduct, productionQuantity);
-        } else {
-            Toast.makeText(this, "Insufficient materials for the entered quantities", Toast.LENGTH_SHORT).show();
+        // Check if selected quantities of raw materials and packaging are valid
+        if (!rawMaterialAdapter.hasSelectedItems() || !packagingAdapter.hasSelectedItems()) {
+            Toast.makeText(this, "Please select at least one raw material and one packaging item", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        if (!rawMaterialAdapter.hasSufficientQuantities() || !packagingAdapter.hasSufficientQuantities()) {
+            Toast.makeText(this, "Insufficient materials for the entered quantities", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if the production quantity is greater than current stock
+        if (productionQuantity <= 0 || productionQuantity > selectedProduct.getProdQty()) {
+            Toast.makeText(this, "Production quantity must be greater than 0 and less than or equal to current stock", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Deduct quantities from raw materials and packaging before updating the product
+        rawMaterialAdapter.deductQuantitiesInFirestore(db);
+        packagingAdapter.deductQuantitiesInFirestore(db);
+
+        // Update the product quantity and total price in Firestore
+        updateQuantitiesInFirestore(selectedProduct, productionQuantity);
     }
+
 
     private void updateQuantitiesInFirestore(DataClass selectedProduct, int productionQuantity) {
         int newProductQty = selectedProduct.getProdQty() + productionQuantity; // Update quantity based on production
@@ -152,6 +187,13 @@ public class FoodProdActivity extends AppCompatActivity {
                                 .update("prodQty", newProductQty, "prodTotalPrice", totalPrice) // Ensure prodTotalPrice is updated
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Production completed and quantities updated", Toast.LENGTH_SHORT).show();
+
+                                    // Refresh the product spinner to show updated values
+                                    loadProducts();
+
+                                    // Reload raw materials and packaging
+                                    loadRawMaterials();
+                                    loadPackaging();
                                 })
                                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to update product quantity", Toast.LENGTH_SHORT).show());
                     }

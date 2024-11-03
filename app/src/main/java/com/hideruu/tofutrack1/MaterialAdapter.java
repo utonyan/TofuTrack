@@ -65,6 +65,16 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
         return true;
     }
 
+    // New method to check if any items are selected
+    public boolean hasSelectedItems() {
+        for (int i = 0; i < materialList.size(); i++) {
+            if (getSelectedQuantity(i) > 0) {
+                return true; // At least one item is selected
+            }
+        }
+        return false; // No items selected
+    }
+
     public void deductQuantitiesInFirestore(FirebaseFirestore db) {
         for (int i = 0; i < materialList.size(); i++) {
             DataClass material = materialList.get(i);
@@ -73,7 +83,7 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
 
             if (newQuantity < 0) {
                 Toast.makeText(context, "Insufficient quantity for " + material.getProdName(), Toast.LENGTH_SHORT).show();
-                continue;
+                continue; // Skip to the next material
             }
 
             db.collection("products")
@@ -84,7 +94,7 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
                             String documentId = queryDocumentSnapshots.getDocuments().get(0).getId();
                             db.collection("products").document(documentId)
                                     .update("prodQty", newQuantity)
-                                    .addOnSuccessListener(aVoid -> Toast.makeText(context, "Quantity updated for " + material.getProdName(), Toast.LENGTH_SHORT).show())
+                                    //.addOnSuccessListener(aVoid -> Toast.makeText(context, "Quantity updated for " + material.getProdName(), Toast.LENGTH_SHORT).show())
                                     .addOnFailureListener(e -> Toast.makeText(context, "Failed to update quantity for " + material.getProdName(), Toast.LENGTH_SHORT).show());
                         }
                     });
