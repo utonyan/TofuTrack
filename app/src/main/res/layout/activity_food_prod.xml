@@ -1,92 +1,52 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<!-- res/layout/activity_food_prod.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <RelativeLayout
+    <!-- Spinner to select product from Product group -->
+    <Spinner
+        android:id="@+id/productSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/my_primary"
-        android:padding="10dp"
-        android:id="@+id/main_toolbar">
+        android:prompt="@string/select_product" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginStart="10dp"
-            android:layout_centerVertical="true"
-            android:id="@+id/title_text" />
+    <EditText
+        android:id="@+id/productionQuantityEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter quantity to produce"
+        android:inputType="number" />
 
-        <ImageView
-            android:id="@+id/sdfsfs"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/loogo05"
-            android:layout_toEndOf="@id/title_text"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginStart="3dp" />
 
-        <!-- Shopping Cart Text -->
-        <TextView
-            android:visibility="invisible"
-            android:id="@+id/shopping_cart_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Shopping Cart:"
-            android:textColor="@color/white"
-            android:textSize="13sp"
-            android:layout_marginTop="5dp"
-            android:layout_toEndOf="@id/sdfsfs"
-            android:layout_marginStart="10dp"
-            android:layout_centerVertical="true" />
-
-        <!-- Cart Item Count -->
-        <TextView
-            android:visibility="invisible"
-            android:id="@+id/cartItemCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/shopping_cart_text"
-            android:layout_marginStart="5dp"
-            android:background="@drawable/circle_bg"
-            android:elevation="6dp"
-            android:padding="3dp"
-            android:text="0"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
+    <!-- RecyclerView for Raw Material selection -->
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:backgroundTint="@color/my_primary"
-        android:visibility="gone" /> <!-- This ProgressBar is centered -->
+        android:text="raw_materials" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/rawMaterialRecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/main_toolbar" /> <!-- Place RecyclerView below SearchView -->
+        android:layout_height="wrap_content" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+    <!-- RecyclerView for Packaging selection -->
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="15dp"
-        android:src="@drawable/shoppingcart"
-        android:tint="@color/white"
-        android:backgroundTint="@color/my_primary" />
-</RelativeLayout>
+        android:text="packaging" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/packagingRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Button to confirm selection -->
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirm Production" />
+</LinearLayout>

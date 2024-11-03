@@ -1,0 +1,47 @@
+<!-- res/layout/item_material.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Checkbox for selecting the material -->
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Name of the material -->
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:padding="8dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black" />
+    <TextView
+        android:id="@+id/currentQuantityTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:padding="8dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/black" />
+
+    <!-- Quantity input field for entering required quantity -->
+    <EditText
+        android:id="@+id/quantityEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="0"
+        android:layout_marginStart="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:background="@android:drawable/edit_text"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
