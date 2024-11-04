@@ -148,7 +148,7 @@ public class UpdateActivity extends AppCompatActivity {
         if ("Product".equalsIgnoreCase(prodGroup)) {
             // Allow updating prodQty only if it matches currentQty
             if (newProdQty != currentQty) {
-                Toast.makeText(UpdateActivity.this, "Go to the Production module to update the quantity", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UpdateActivity.this, "Go to the Production module to update the PRODUCT quantity", Toast.LENGTH_SHORT).show();
                 return;
             }
         } else {

@@ -167,9 +167,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Records"
+                    android:text="Inventory Records"
                     android:layout_gravity="center_horizontal"
-                    android:textSize="18sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"/>
 
@@ -211,7 +211,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sales Record"
+                    android:text="Sales Records"
                     android:layout_gravity="center_horizontal"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -383,7 +383,7 @@
                 <ImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/factory"
+                    android:src="@drawable/baseline_assignment_24"
                     android:layout_gravity="center_horizontal"
                     app:tint="@color/skyblue"
                     />
@@ -392,9 +392,9 @@
                     android:textAlignment="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Prod Records"
+                    android:text="Production Records"
                     android:layout_gravity="center_horizontal"
-                    android:textSize="18sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"/>
 
