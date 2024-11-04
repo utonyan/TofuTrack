@@ -148,11 +148,15 @@ public class CartActivity extends AppCompatActivity {
     }
 
     private void checkout(double payment, double change) {
-        AtomicReference<Double> totalCost = new AtomicReference<>(calculateTotalAmount());
+        // Calculate the total amount from the cart items before processing
+        double totalCost = calculateTotalAmount();
+
+        // Prepare the receipt items list
         List<ReceiptItem> receiptItems = new ArrayList<>();
         int totalItems = cartItems.size();
         AtomicReference<Integer> completedCount = new AtomicReference<>(0);
 
+        // Loop through cart items to create receipt items
         for (CartItem cartItem : cartItems) {
             DataClass product = cartItem.getProduct();
             int quantityToSubtract = cartItem.getQuantity();
@@ -167,12 +171,12 @@ public class CartActivity extends AppCompatActivity {
                             int currentQuantity = product.getProdQty();
 
                             int newQuantity = currentQuantity - quantityToSubtract;
-                            double itemCost = quantityToSubtract * product.getProdCost();
-                            totalCost.updateAndGet(v -> v + itemCost);
 
+                            // Create receipt item
                             ReceiptItem receiptItem = new ReceiptItem(product.getProdName(), product.getProdCost(), product.getProdUnitType(), quantityToSubtract);
                             receiptItems.add(receiptItem);
 
+                            // Update product quantity in Firestore
                             db.collection("products").document(documentId)
                                     .update("prodQty", newQuantity, "prodTotalPrice", newQuantity * product.getProdCost())
                                     .addOnSuccessListener(aVoid -> {})
@@ -185,7 +189,7 @@ public class CartActivity extends AppCompatActivity {
 
                         completedCount.updateAndGet(v -> v + 1);
                         if (completedCount.get() == totalItems) {
-                            checkAndSaveReceipt(receiptItems, totalCost.get(), payment, change);
+                            checkAndSaveReceipt(receiptItems, totalCost, payment, change);
                         }
                     });
         }
