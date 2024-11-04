@@ -58,7 +58,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            android:text="Payment:"
+            android:text="Payment:₱"
             android:textSize="15sp"
             android:textColor="@android:color/black"
             android:gravity="center" />
