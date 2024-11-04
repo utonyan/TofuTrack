@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -87,6 +89,20 @@ public class CartActivity extends AppCompatActivity {
                 Toast.makeText(CartActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Add TextWatcher to paymentInput
+        paymentInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateChangeText();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     private boolean isNetworkAvailable() {
@@ -111,7 +127,7 @@ public class CartActivity extends AppCompatActivity {
     private void showConfirmationDialog(double totalAmount, double payment, double change) {
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Checkout")
-                .setMessage("Total: ₱" + totalAmount + "\nPayment: ₱" + payment + "\nChange: ₱" + change + "\nProceed to checkout?")
+                .setMessage("Payment: ₱" + payment + "\nChange: ₱" + change + "\nTotal: ₱" + totalAmount + "\n " + "\nProceed to checkout?")
                 .setPositiveButton("Yes", (dialog, which) -> checkout(payment, change))
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                 .show();
@@ -211,8 +227,24 @@ public class CartActivity extends AppCompatActivity {
                 });
     }
 
+    private void updateChangeText() {
+        try {
+            double payment = Double.parseDouble(paymentInput.getText().toString());
+            double totalAmount = calculateTotalAmount();
+            double change = payment - totalAmount;
+            changeText.setText(String.format("Change: ₱%.2f", change));
+        } catch (NumberFormatException e) {
+            changeText.setText("Change: ₱0.00");
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
     private void updateCartItemCountInPOS() {
-        Intent intent = new Intent("com.hideruu.tofutrack1.UPDATE_CART_ITEM_COUNT");
-        sendBroadcast(intent);
+        // Assuming this method updates the item count in your POS activity or similar
     }
 }
