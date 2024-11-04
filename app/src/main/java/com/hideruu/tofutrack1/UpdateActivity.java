@@ -157,6 +157,10 @@ public class UpdateActivity extends AppCompatActivity {
                 Toast.makeText(UpdateActivity.this, "Quantity cannot be negative", Toast.LENGTH_SHORT).show();
                 return;
             }
+        }       // For other groups, ensure the new quantity is not less than the current stock
+        if (newProdQty < currentQty) {
+            Toast.makeText(UpdateActivity.this, "Quantity cannot be less than current stock for this group", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         // Show confirmation dialog

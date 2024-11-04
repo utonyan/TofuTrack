@@ -253,4 +253,16 @@ public class InventoryActivity extends AppCompatActivity {
         }
         progressBar.setVisibility(View.GONE); // Hide progress bar
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_UPLOAD && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back from UploadActivity
+        } else if (requestCode == REQUEST_CODE_DELETE && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back after deletion
+        } else if (requestCode == REQUEST_CODE_UPDATE && resultCode == RESULT_OK) {
+            fetchData(); // Reload data when coming back from UpdateActivity
+        }
+    }
 }
