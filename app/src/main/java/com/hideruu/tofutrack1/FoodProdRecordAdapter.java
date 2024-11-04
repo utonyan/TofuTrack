@@ -3,81 +3,77 @@ package com.hideruu.tofutrack1;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class FoodProdRecordAdapter extends RecyclerView.Adapter<FoodProdRecordAdapter.FoodProdRecordViewHolder> {
+public class FoodProdRecordAdapter extends RecyclerView.Adapter<FoodProdRecordAdapter.ProductionRecordViewHolder> {
 
-    private List<ProductionRecord> foodProdRecordList; // Updated to ProductionRecord
+    private List<ProductionRecord> productionRecordList;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a, MMM dd, yyyy", Locale.getDefault());
 
-    public FoodProdRecordAdapter(List<ProductionRecord> foodProdRecordList) { // Updated constructor
-        this.foodProdRecordList = foodProdRecordList;
+    public FoodProdRecordAdapter(List<ProductionRecord> productionRecordList) {
+        this.productionRecordList = productionRecordList;
     }
 
     @NonNull
     @Override
-    public FoodProdRecordViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ProductionRecordViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_food_prod_record, parent, false);
-        return new FoodProdRecordViewHolder(view);
+        return new ProductionRecordViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FoodProdRecordViewHolder holder, int position) {
-        ProductionRecord record = foodProdRecordList.get(position); // Updated to ProductionRecord
+    public void onBindViewHolder(@NonNull ProductionRecordViewHolder holder, int position) {
+        ProductionRecord productionRecord = productionRecordList.get(position);
 
-        // Set the product name and quantity produced
-        holder.recordId.setText("Product: " + record.getProductName());
-        holder.totalProduced.setText(String.format("Total Produced: %d", record.getQuantityProduced()));
-        holder.dateTime.setText("Date: " + dateFormat.format(record.getTimestamp())); // Corrected to use getTimestamp()
+        holder.productName.setText("Product: " + productionRecord.getProductName());
+        holder.quantityProduced.setText("Quantity Produced: " + productionRecord.getQuantityProduced());
+        holder.totalPrice.setText(String.format("Total Price: ₱%.2f", productionRecord.getTotalPrice()));
+        holder.timestamp.setText("Date: " + dateFormat.format(productionRecord.getTimestamp()));
 
-        // Clear existing views and add new views for raw materials and packaging
-        holder.productsLayout.removeAllViews();
-
-        // Display raw materials
-        for (Map.Entry<String, Integer> entry : record.getRawMaterials().entrySet()) {
-            TextView productTextView = new TextView(holder.itemView.getContext());
-            productTextView.setText(String.format("Raw Material: %s (x%d)", entry.getKey(), entry.getValue()));
-            productTextView.setTextSize(14);
-            holder.productsLayout.addView(productTextView);
-        }
-
-        // Display packaging
-        for (Map.Entry<String, Integer> entry : record.getPackaging().entrySet()) {
-            TextView packagingTextView = new TextView(holder.itemView.getContext());
-            packagingTextView.setText(String.format("Packaging: %s (x%d)", entry.getKey(), entry.getValue()));
-            packagingTextView.setTextSize(14);
-            holder.productsLayout.addView(packagingTextView);
-        }
+        // Display selected raw materials
+        holder.rawMaterials.setText("Raw Materials: " + formatRawMaterials(productionRecord.getRawMaterials()));
+        holder.packaging.setText("Packaging: " + formatPackaging(productionRecord.getPackaging()));
     }
 
+    private String formatRawMaterials(Map<String, Integer> rawMaterials) {
+        StringBuilder formatted = new StringBuilder();
+        for (Map.Entry<String, Integer> entry : rawMaterials.entrySet()) {
+            formatted.append(entry.getKey()).append(" (").append(entry.getValue()).append("), ");
+        }
+        return formatted.length() > 0 ? formatted.substring(0, formatted.length() - 2) : "None";
+    }
+
+    private String formatPackaging(Map<String, Integer> packaging) {
+        StringBuilder formatted = new StringBuilder();
+        for (Map.Entry<String, Integer> entry : packaging.entrySet()) {
+            formatted.append(entry.getKey()).append(" (").append(entry.getValue()).append("), ");
+        }
+        return formatted.length() > 0 ? formatted.substring(0, formatted.length() - 2) : "None";
+    }
 
     @Override
     public int getItemCount() {
-        return foodProdRecordList.size();
+        return productionRecordList.size();
     }
 
-    public void updateFoodProdRecords(List<ProductionRecord> updatedList) { // Updated method signature
-        this.foodProdRecordList = updatedList;
-        notifyDataSetChanged();
-    }
+    static class ProductionRecordViewHolder extends RecyclerView.ViewHolder {
+        TextView productName, quantityProduced, totalPrice, timestamp, rawMaterials, packaging;
 
-    static class FoodProdRecordViewHolder extends RecyclerView.ViewHolder {
-        TextView totalProduced, dateTime, recordId;
-        LinearLayout productsLayout;
-
-        public FoodProdRecordViewHolder(@NonNull View itemView) {
+        public ProductionRecordViewHolder(@NonNull View itemView) {
             super(itemView);
-            recordId = itemView.findViewById(R.id.recordIdTextView);
-            totalProduced = itemView.findViewById(R.id.totalProducedTextView);
-            dateTime = itemView.findViewById(R.id.dateTimeTextView);
-            productsLayout = itemView.findViewById(R.id.productsLayout);
+            productName = itemView.findViewById(R.id.productNameTextView);
+            quantityProduced = itemView.findViewById(R.id.quantityProducedTextView);
+            totalPrice = itemView.findViewById(R.id.totalPriceTextView);
+            timestamp = itemView.findViewById(R.id.timestampTextView);
+            rawMaterials = itemView.findViewById(R.id.rawMaterialsTextView); // Make sure to have this TextView in your layout
+            packaging = itemView.findViewById(R.id.packagingTextView); // Make sure to have this TextView in your layout
         }
     }
 }
