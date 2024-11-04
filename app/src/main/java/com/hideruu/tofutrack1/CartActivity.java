@@ -33,7 +33,7 @@ public class CartActivity extends AppCompatActivity {
     private CartAdapter cartAdapter;
     private List<CartItem> cartItems;
     private FirebaseFirestore db;
-    private Button checkoutButton;
+    private Button checkoutButton, clearCartButton;
     private SharedPreferences sharedPreferences;
     private TextView totalPriceText, changeText;
     private EditText paymentInput;
@@ -90,6 +90,10 @@ public class CartActivity extends AppCompatActivity {
             }
         });
 
+        // Setup Clear Cart button
+        clearCartButton = findViewById(R.id.clearCartButton);
+        clearCartButton.setOnClickListener(v -> clearCart());
+
         // Add TextWatcher to paymentInput
         paymentInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -103,6 +107,16 @@ public class CartActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+    }
+
+    private void clearCart() {
+        ShoppingCart.clearCart(); // Clear the cart in ShoppingCart class
+        cartItems.clear(); // Clear the local cartItems list
+        cartAdapter.notifyDataSetChanged(); // Notify the adapter to update the RecyclerView
+        totalPriceText.setText("Total: ₱0.00"); // Reset total price
+        paymentInput.setText(""); // Clear payment input
+        changeText.setText("Change: ₱0.00"); // Reset change display
+        Toast.makeText(this, "Cart has been cleared.", Toast.LENGTH_SHORT).show();
     }
 
     private boolean isNetworkAvailable() {
@@ -216,35 +230,28 @@ public class CartActivity extends AppCompatActivity {
 
     private void saveReceipt(List<ReceiptItem> receiptItems, double totalCost, String documentName, double payment, double change) {
         Receipt receipt = new Receipt(receiptItems, totalCost, new Date(), documentName, payment, change);
-
-        db.collection("receipts")
-                .add(receipt)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(CartActivity.this, "Receipt saved with change: ₱" + change, Toast.LENGTH_SHORT).show();
+        db.collection("receipts").document(documentName)
+                .set(receipt)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(CartActivity.this, "Receipt saved: " + documentName, Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(CartActivity.this, "Failed to save receipt: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
+    private void updateCartItemCountInPOS() {
+        // Implement this method to update cart item count in your POS activity if needed.
+    }
+
     private void updateChangeText() {
+        double totalAmount = calculateTotalAmount();
         try {
             double payment = Double.parseDouble(paymentInput.getText().toString());
-            double totalAmount = calculateTotalAmount();
             double change = payment - totalAmount;
             changeText.setText(String.format("Change: ₱%.2f", change));
         } catch (NumberFormatException e) {
             changeText.setText("Change: ₱0.00");
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-    }
-
-    private void updateCartItemCountInPOS() {
-        // Assuming this method updates the item count in your POS activity or similar
     }
 }
