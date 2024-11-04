@@ -36,9 +36,51 @@
         android:id="@+id/recyclerViewCart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottomBar"
+        android:layout_above="@id/totalPriceBar"
         android:layout_below="@id/main_toolbar"
         android:padding="10dp" />
+
+    <!-- Total Price Bar -->
+    <LinearLayout
+        android:id="@+id/totalPriceBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottomBar"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:elevation="8dp"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/totalPriceText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total: $0.00"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_weight="1" />
+
+        <EditText
+            android:id="@+id/paymentInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:hint="Enter Payment"
+            android:inputType="numberDecimal"
+            android:textSize="16sp"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/changeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change: $0.00"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <!-- Bottom Bar for Clear Cart and Checkout buttons -->
     <LinearLayout

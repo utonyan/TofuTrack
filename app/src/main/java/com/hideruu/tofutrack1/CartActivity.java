@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -31,6 +32,7 @@ public class CartActivity extends AppCompatActivity {
     private FirebaseFirestore db; // Firestore instance
     private Button checkoutButton;
     private SharedPreferences sharedPreferences;
+    private TextView totalPriceText;
     private static final String PREFS_NAME = "TofuTrackPrefs";
 
     @Override
@@ -49,6 +51,10 @@ public class CartActivity extends AppCompatActivity {
         cartItems = ShoppingCart.getCartItems();
         cartAdapter = new CartAdapter(cartItems);
         recyclerView.setAdapter(cartAdapter);
+
+        // Initialize total price TextView
+        totalPriceText = findViewById(R.id.totalPriceText);
+        updateTotalPrice();
 
         // Setup Clear Cart button
         Button clearCartButton = findViewById(R.id.clearCartButton);
@@ -94,6 +100,14 @@ public class CartActivity extends AppCompatActivity {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+    // Method to calculate total price and update the TextView
+    private void updateTotalPrice() {
+        double totalPrice = 0.0;
+        for (CartItem item : cartItems) {
+            totalPrice += item.getQuantity() * item.getProduct().getProdCost();
+        }
+        totalPriceText.setText(String.format("Total: ₱%.2f", totalPrice));
+    }
 
     private void checkout() {
         if (cartItems.isEmpty()) {
@@ -129,7 +143,7 @@ public class CartActivity extends AppCompatActivity {
                             db.collection("products").document(documentId)
                                     .update("prodQty", newQuantity, "prodTotalPrice", newQuantity * product.getProdCost())
                                     .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(CartActivity.this, "Checkout successful for " + product.getProdName(), Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(CartActivity.this, "Checkout successful for " + product.getProdName(), Toast.LENGTH_SHORT).show();
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(CartActivity.this, "Failed to update product: " + e.getMessage(), Toast.LENGTH_SHORT).show();
