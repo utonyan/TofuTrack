@@ -39,7 +39,7 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
         DataClass material = materialList.get(position);
         holder.nameTextView.setText(material.getProdName());
         holder.currentQuantityTextView.setText(String.valueOf(material.getProdQty()));
-        holder.quantityEditText.setHint("Enter quantity");
+        holder.quantityEditText.setHint("Enter qty");
         holder.quantityEditText.setText(""); // Reset quantity field
 
         // Set the initial state of the checkbox and editText

@@ -175,7 +175,6 @@ public class FoodProdActivity extends AppCompatActivity {
             return;
         }
 
-
         // Deduct quantities from raw materials and packaging before updating the product
         rawMaterialAdapter.deductQuantitiesInFirestore(db);
         packagingAdapter.deductQuantitiesInFirestore(db);
@@ -203,6 +202,9 @@ public class FoodProdActivity extends AppCompatActivity {
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Production completed and quantities updated", Toast.LENGTH_SHORT).show();
 
+                                    // Save production record
+                                    saveProductionRecord(selectedProduct.getProdName(), productionQuantity, totalPrice);
+
                                     // Store the current spinner position
                                     int selectedPosition = productSpinner.getSelectedItemPosition();
 
@@ -223,6 +225,18 @@ public class FoodProdActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to retrieve product", Toast.LENGTH_SHORT).show());
+    }
+
+    private void saveProductionRecord(String productName, int quantityProduced, double totalPrice) {
+        ProductionRecord record = new ProductionRecord(productName, quantityProduced, totalPrice);
+        db.collection("production_records") // Create a new collection for production records
+                .add(record)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("FoodProdActivity", "Production record saved with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FoodProdActivity", "Error saving production record", e);
+                });
     }
 
 }
