@@ -19,9 +19,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class FoodProdActivity extends AppCompatActivity {
 
@@ -175,6 +177,33 @@ public class FoodProdActivity extends AppCompatActivity {
             return;
         }
 
+        // Retrieve selected raw materials and their quantities
+        Map<String, Integer> selectedRawMaterials = rawMaterialAdapter.getSelectedItems();
+        Map<String, Integer> selectedPackaging = packagingAdapter.getSelectedItems();
+
+        // Convert selected items to arrays
+        String[] rawMaterialsArray = new String[selectedRawMaterials.size()];
+        int[] rawMaterialsQuantitiesArray = new int[selectedRawMaterials.size()];
+        int index = 0;
+        for (Map.Entry<String, Integer> entry : selectedRawMaterials.entrySet()) {
+            rawMaterialsArray[index] = entry.getKey(); // material name
+            rawMaterialsQuantitiesArray[index] = entry.getValue(); // quantity
+            index++;
+        }
+
+        String[] packagingArray = new String[selectedPackaging.size()];
+        int[] packagingQuantitiesArray = new int[selectedPackaging.size()];
+        index = 0;
+        for (Map.Entry<String, Integer> entry : selectedPackaging.entrySet()) {
+            packagingArray[index] = entry.getKey(); // packaging name
+            packagingQuantitiesArray[index] = entry.getValue(); // quantity
+            index++;
+        }
+
+        // Log selected items for debugging
+        Log.d("FoodProdActivity", "Selected Raw Materials: " + Arrays.toString(rawMaterialsArray) + " with quantities: " + Arrays.toString(rawMaterialsQuantitiesArray));
+        Log.d("FoodProdActivity", "Selected Packaging: " + Arrays.toString(packagingArray) + " with quantities: " + Arrays.toString(packagingQuantitiesArray));
+
         // Deduct quantities from raw materials and packaging before updating the product
         rawMaterialAdapter.deductQuantitiesInFirestore(db);
         packagingAdapter.deductQuantitiesInFirestore(db);
@@ -228,7 +257,13 @@ public class FoodProdActivity extends AppCompatActivity {
     }
 
     private void saveProductionRecord(String productName, int quantityProduced, double totalPrice) {
-        ProductionRecord record = new ProductionRecord(productName, quantityProduced, totalPrice);
+        // Retrieve selected raw materials and their quantities
+        Map<String, Integer> selectedRawMaterials = rawMaterialAdapter.getSelectedItems();
+        Map<String, Integer> selectedPackaging = packagingAdapter.getSelectedItems();
+
+        // Create a new ProductionRecord with raw materials and packaging included
+        ProductionRecord record = new ProductionRecord(productName, quantityProduced, totalPrice, selectedRawMaterials, selectedPackaging);
+
         db.collection("production_records") // Create a new collection for production records
                 .add(record)
                 .addOnSuccessListener(documentReference -> {
@@ -238,5 +273,6 @@ public class FoodProdActivity extends AppCompatActivity {
                     Log.e("FoodProdActivity", "Error saving production record", e);
                 });
     }
+
 
 }

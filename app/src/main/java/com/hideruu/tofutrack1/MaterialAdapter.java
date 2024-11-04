@@ -14,7 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHolder> {
     private Context context;
@@ -110,6 +113,20 @@ public class MaterialAdapter extends RecyclerView.Adapter<MaterialAdapter.ViewHo
                     });
         }
     }
+
+    // New method to get selected items and their quantities
+    public Map<String, Integer> getSelectedItems() {
+        Map<String, Integer> selectedItems = new HashMap<>();
+        for (int i = 0; i < materialList.size(); i++) {
+            DataClass material = materialList.get(i);
+            int quantity = getSelectedQuantity(i);
+            if (quantity > 0) {
+                selectedItems.put(material.getProdName(), quantity);
+            }
+        }
+        return selectedItems;
+    }
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView, currentQuantityTextView;
