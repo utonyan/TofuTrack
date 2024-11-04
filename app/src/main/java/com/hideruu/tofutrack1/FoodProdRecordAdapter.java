@@ -35,7 +35,7 @@ public class FoodProdRecordAdapter extends RecyclerView.Adapter<FoodProdRecordAd
 
         holder.productName.setText("Product: " + productionRecord.getProductName());
         holder.quantityProduced.setText("Quantity Produced: " + productionRecord.getQuantityProduced());
-        holder.totalPrice.setText(String.format("Total Price: ₱%.2f", productionRecord.getTotalPrice()));
+        //holder.totalPrice.setText(String.format("Total Price: ₱%.2f", productionRecord.getTotalPrice()));
         holder.timestamp.setText("Date: " + dateFormat.format(productionRecord.getTimestamp()));
 
         // Clear previous views
@@ -72,7 +72,7 @@ public class FoodProdRecordAdapter extends RecyclerView.Adapter<FoodProdRecordAd
             super(itemView);
             productName = itemView.findViewById(R.id.productNameTextView);
             quantityProduced = itemView.findViewById(R.id.quantityProducedTextView);
-            totalPrice = itemView.findViewById(R.id.totalPriceTextView);
+            //totalPrice = itemView.findViewById(R.id.totalPriceTextView);
             timestamp = itemView.findViewById(R.id.timestampTextView);
             rawMaterialsLayout = itemView.findViewById(R.id.rawMaterialsLayout); // Use LinearLayout for raw materials
             packagingLayout = itemView.findViewById(R.id.packagingLayout); // Use LinearLayout for packaging

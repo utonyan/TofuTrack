@@ -18,44 +18,59 @@
         <TextView
             android:id="@+id/productNameTextView"
             android:layout_width="0dp"
+            android:gravity="center"
             android:layout_height="wrap_content"
             android:text="Product: "
-            android:textSize="20sp"
+            android:textSize="25sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Separator View -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/productNameTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <!-- Date and Time -->
         <TextView
+            android:layout_marginTop="10dp"
             android:id="@+id/timestampTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="Date: "
-            android:textSize="16sp"
+            android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/productNameTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Quantity Produced -->
+        <!-- View Separator -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/timestampTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Raw Materials Text -->
         <TextView
-            android:id="@+id/quantityProducedTextView"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:id="@+id/rawmaterialstext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Quantity Produced: "
+            android:text="Raw Materials: "
             android:textSize="16sp"
             app:layout_constraintTop_toBottomOf="@id/timestampTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Total Price -->
-        <TextView
-            android:id="@+id/totalPriceTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Total Price: ₱0.00"
-            android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/quantityProducedTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -65,7 +80,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/totalPriceTextView"/>
+            app:layout_constraintTop_toBottomOf="@id/rawmaterialstext"/>
+
+        <!-- View Separator between Raw Materials and Packaging -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/rawMaterialsLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Packaging Text -->
+        <TextView
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:id="@+id/packagingtext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Packaging: "
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/rawMaterialsLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <!-- Packaging Layout -->
         <LinearLayout
@@ -73,8 +111,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/rawMaterialsLayout"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/packagingtext" />
 
+        <View
+            android:id="@+id/wew3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/packagingLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Quantity Produced -->
+        <TextView
+            app:layout_goneMarginTop="10dp"
+            android:id="@+id/quantityProducedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quantity Produced: "
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_green_light"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/wew3"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="6dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
