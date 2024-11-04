@@ -84,6 +84,15 @@
                 android:hint="Enter quantity to produce"
                 android:inputType="number" />
 
+            <!-- Button to confirm selection -->
+            <Button
+                android:background="@drawable/btn_rounded_corner"
+                android:id="@+id/confirmButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Confirm Production"
+                android:layout_marginTop="16dp" />
+
             <!-- RecyclerView for Raw Material selection -->
             <TextView
                 android:layout_width="wrap_content"
@@ -92,14 +101,14 @@
                 android:layout_marginTop="16dp"
                 android:textStyle="bold" />
 
+            <!-- RecyclerView for Packaging selection -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rawMaterialRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="800dp"
+                android:layout_height="200dp"
                 android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"/>
+                android:nestedScrollingEnabled="true" />
 
-            <!-- RecyclerView for Packaging selection -->
             <TextView
                 android:id="@+id/packagingTextView"
                 android:layout_width="wrap_content"
@@ -111,18 +120,11 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/packagingRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"/>
+                android:nestedScrollingEnabled="true"/>
 
-            <!-- Button to confirm selection -->
-            <Button
-                android:background="@drawable/btn_rounded_corner"
-                android:id="@+id/confirmButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Confirm Production"
-                android:layout_marginTop="16dp" />
+
         </LinearLayout>
 
     </LinearLayout>

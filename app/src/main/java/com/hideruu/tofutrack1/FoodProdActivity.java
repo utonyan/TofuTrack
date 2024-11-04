@@ -170,11 +170,11 @@ public class FoodProdActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if the production quantity is greater than current stock
-        if (productionQuantity <= 0 || productionQuantity > selectedProduct.getProdQty()) {
-            Toast.makeText(this, "Production quantity must be greater than 0 and less than or equal to current stock", Toast.LENGTH_SHORT).show();
+        if (productionQuantity <= 0) {
+            Toast.makeText(this, "Production quantity must be greater than 0", Toast.LENGTH_SHORT).show();
             return;
         }
+
 
         // Deduct quantities from raw materials and packaging before updating the product
         rawMaterialAdapter.deductQuantitiesInFirestore(db);
