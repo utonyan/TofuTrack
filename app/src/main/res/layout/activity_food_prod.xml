@@ -100,14 +100,18 @@
                 android:text="Raw Materials"
                 android:layout_marginTop="16dp"
                 android:textStyle="bold" />
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
             <!-- RecyclerView for Packaging selection -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rawMaterialRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="800dp"
                 android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="true" />
+                android:nestedScrollingEnabled="false" />
+</LinearLayout>
 
             <TextView
                 android:id="@+id/packagingTextView"
@@ -120,7 +124,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/packagingRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="true"/>
 
