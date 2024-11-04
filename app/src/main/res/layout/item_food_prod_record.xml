@@ -59,28 +59,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Raw Materials -->
-        <TextView
-            android:id="@+id/rawMaterialsTextView"
-            android:layout_width="0dp"
+        <!-- Raw Materials Layout -->
+        <LinearLayout
+            android:id="@+id/rawMaterialsLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Raw Materials: "
-            android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/totalPriceTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/totalPriceTextView"/>
 
-        <!-- Packaging -->
-        <TextView
-            android:id="@+id/packagingTextView"
-            android:layout_width="0dp"
+        <!-- Packaging Layout -->
+        <LinearLayout
+            android:id="@+id/packagingLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Packaging: "
-            android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/rawMaterialsTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/rawMaterialsLayout"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

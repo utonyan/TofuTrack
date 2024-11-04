@@ -3,6 +3,7 @@ package com.hideruu.tofutrack1;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,25 +38,25 @@ public class FoodProdRecordAdapter extends RecyclerView.Adapter<FoodProdRecordAd
         holder.totalPrice.setText(String.format("Total Price: ₱%.2f", productionRecord.getTotalPrice()));
         holder.timestamp.setText("Date: " + dateFormat.format(productionRecord.getTimestamp()));
 
+        // Clear previous views
+        holder.rawMaterialsLayout.removeAllViews();
+        holder.packagingLayout.removeAllViews();
+
         // Display selected raw materials
-        holder.rawMaterials.setText("Raw Materials: " + formatRawMaterials(productionRecord.getRawMaterials()));
-        holder.packaging.setText("Packaging: " + formatPackaging(productionRecord.getPackaging()));
-    }
-
-    private String formatRawMaterials(Map<String, Integer> rawMaterials) {
-        StringBuilder formatted = new StringBuilder();
-        for (Map.Entry<String, Integer> entry : rawMaterials.entrySet()) {
-            formatted.append(entry.getKey()).append(" (").append(entry.getValue()).append("), ");
+        for (Map.Entry<String, Integer> entry : productionRecord.getRawMaterials().entrySet()) {
+            TextView rawMaterialTextView = new TextView(holder.itemView.getContext());
+            rawMaterialTextView.setText(String.format("%s (x%d)", entry.getKey(), entry.getValue()));
+            rawMaterialTextView.setTextSize(14);
+            holder.rawMaterialsLayout.addView(rawMaterialTextView);
         }
-        return formatted.length() > 0 ? formatted.substring(0, formatted.length() - 2) : "None";
-    }
 
-    private String formatPackaging(Map<String, Integer> packaging) {
-        StringBuilder formatted = new StringBuilder();
-        for (Map.Entry<String, Integer> entry : packaging.entrySet()) {
-            formatted.append(entry.getKey()).append(" (").append(entry.getValue()).append("), ");
+        // Display selected packaging
+        for (Map.Entry<String, Integer> entry : productionRecord.getPackaging().entrySet()) {
+            TextView packagingTextView = new TextView(holder.itemView.getContext());
+            packagingTextView.setText(String.format("%s (x%d)", entry.getKey(), entry.getValue()));
+            packagingTextView.setTextSize(14);
+            holder.packagingLayout.addView(packagingTextView);
         }
-        return formatted.length() > 0 ? formatted.substring(0, formatted.length() - 2) : "None";
     }
 
     @Override
@@ -64,7 +65,8 @@ public class FoodProdRecordAdapter extends RecyclerView.Adapter<FoodProdRecordAd
     }
 
     static class ProductionRecordViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, quantityProduced, totalPrice, timestamp, rawMaterials, packaging;
+        TextView productName, quantityProduced, totalPrice, timestamp;
+        LinearLayout rawMaterialsLayout, packagingLayout;
 
         public ProductionRecordViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,8 +74,8 @@ public class FoodProdRecordAdapter extends RecyclerView.Adapter<FoodProdRecordAd
             quantityProduced = itemView.findViewById(R.id.quantityProducedTextView);
             totalPrice = itemView.findViewById(R.id.totalPriceTextView);
             timestamp = itemView.findViewById(R.id.timestampTextView);
-            rawMaterials = itemView.findViewById(R.id.rawMaterialsTextView); // Make sure to have this TextView in your layout
-            packaging = itemView.findViewById(R.id.packagingTextView); // Make sure to have this TextView in your layout
+            rawMaterialsLayout = itemView.findViewById(R.id.rawMaterialsLayout); // Use LinearLayout for raw materials
+            packagingLayout = itemView.findViewById(R.id.packagingLayout); // Use LinearLayout for packaging
         }
     }
 }
