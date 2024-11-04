@@ -78,5 +78,14 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(DashboardActivity.this, FoodProdActivity.class));
             }
         });
+        // Receipt button setup
+        CardView FoodProdRecordButton = findViewById(R.id.FoodProdRecord_button);
+        FoodProdRecordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open ProductionActivity
+                startActivity(new Intent(DashboardActivity.this, FoodProdRecordsActivity.class));
+            }
+        });
     }
 }
