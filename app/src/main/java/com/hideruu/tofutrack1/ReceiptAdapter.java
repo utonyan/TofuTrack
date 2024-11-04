@@ -32,32 +32,24 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptV
     public void onBindViewHolder(@NonNull ReceiptViewHolder holder, int position) {
         Receipt receipt = receiptList.get(position);
 
-        // Set the document name
         holder.documentName.setText("ID:" + receipt.getDocumentName());
-
-        // Set the total cost
         holder.totalCost.setText(String.format("Total: " +"₱%.2f", receipt.getTotalCost()));
-
-        // Format the date to include time in 12-hour format
         holder.dateTime.setText("Date: " + dateFormat.format(receipt.getDateTime()));
 
-        // Clear previous product views
+        // Show payment and change
+        holder.payment.setText(String.format("Payment: ₱%.2f", receipt.getPayment()));
+        holder.change.setText(String.format("Change: ₱%.2f", receipt.getChange()));
+
         holder.productsLayout.removeAllViews();
-
-        // Add product details to the layout
         for (ReceiptItem item : receipt.getItems()) {
-            // Calculate total cost for each product
             double itemTotalCost = item.getProdCost() * item.getQuantity();
-
-            // Create a TextView for each product
             TextView productTextView = new TextView(holder.itemView.getContext());
             productTextView.setText(String.format("%s (x%d) - ₱%.2f", item.getProdName(), item.getQuantity(), itemTotalCost));
-            productTextView.setTextSize(14); // Set text size as needed
-
-            // Add the TextView to the products layout
+            productTextView.setTextSize(14);
             holder.productsLayout.addView(productTextView);
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -70,15 +62,18 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptV
     }
 
     static class ReceiptViewHolder extends RecyclerView.ViewHolder {
-        TextView totalCost, dateTime, documentName; // Add documentName here
+        TextView totalCost, dateTime, documentName, payment, change; // Added payment and change
         LinearLayout productsLayout;
 
         public ReceiptViewHolder(@NonNull View itemView) {
             super(itemView);
-            documentName = itemView.findViewById(R.id.documentNameTextView); // Initialize documentName
+            documentName = itemView.findViewById(R.id.documentNameTextView);
             totalCost = itemView.findViewById(R.id.totalCostTextView);
             dateTime = itemView.findViewById(R.id.dateTimeTextView);
+            payment = itemView.findViewById(R.id.paymentTextView); // Initialize payment
+            change = itemView.findViewById(R.id.changeTextView); // Initialize change
             productsLayout = itemView.findViewById(R.id.productsLayout);
         }
     }
+
 }

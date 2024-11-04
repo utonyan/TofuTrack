@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,10 +30,11 @@ public class CartActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CartAdapter cartAdapter;
     private List<CartItem> cartItems;
-    private FirebaseFirestore db; // Firestore instance
+    private FirebaseFirestore db;
     private Button checkoutButton;
     private SharedPreferences sharedPreferences;
-    private TextView totalPriceText;
+    private TextView totalPriceText, changeText;
+    private EditText paymentInput;
     private static final String PREFS_NAME = "TofuTrackPrefs";
 
     @Override
@@ -40,41 +42,26 @@ public class CartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
-        // Initialize Firestore
+        // Initialize Firestore and SharedPreferences
         db = FirebaseFirestore.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
+        // Setup RecyclerView
         recyclerView = findViewById(R.id.recyclerViewCart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Get cart items from the ShoppingCart
+        // Get cart items and set up adapter
         cartItems = ShoppingCart.getCartItems();
         cartAdapter = new CartAdapter(cartItems);
         recyclerView.setAdapter(cartAdapter);
 
-        // Initialize total price TextView
+        // Initialize total price and payment fields
         totalPriceText = findViewById(R.id.totalPriceText);
-        updateTotalPrice();
+        paymentInput = findViewById(R.id.paymentInput);
+        changeText = findViewById(R.id.changeText);
 
-        // Setup Clear Cart button
-        Button clearCartButton = findViewById(R.id.clearCartButton);
-        clearCartButton.setOnClickListener(v -> {
-            if (cartItems.isEmpty()) {
-                Toast.makeText(CartActivity.this, "Your cart is already empty", Toast.LENGTH_SHORT).show();
-            } else {
-                new AlertDialog.Builder(CartActivity.this)
-                        .setTitle("Confirm Clear Cart")
-                        .setMessage("Are you sure you want to clear your cart?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            ShoppingCart.clearCart();
-                            cartAdapter.notifyDataSetChanged();
-                            Toast.makeText(CartActivity.this, "Cart cleared", Toast.LENGTH_SHORT).show();
-                            updateCartItemCountInPOS();
-                        })
-                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                        .show();
-            }
-        });
+        // Update total price on activity start
+        updateTotalPrice();
 
         // Setup Checkout button
         checkoutButton = findViewById(R.id.checkoutButton);
@@ -83,12 +70,19 @@ public class CartActivity extends AppCompatActivity {
             if (cartItems.isEmpty()) {
                 Toast.makeText(CartActivity.this, "Your cart is empty. Please add items to the cart before checking out.", Toast.LENGTH_SHORT).show();
             } else if (isNetworkAvailable()) {
-                new AlertDialog.Builder(CartActivity.this)
-                        .setTitle("Confirm Checkout")
-                        .setMessage("Are you sure you want to proceed to checkout?")
-                        .setPositiveButton("Yes", (dialog, which) -> checkout())
-                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                        .show();
+                double totalAmount = calculateTotalAmount();
+                try {
+                    double payment = Double.parseDouble(paymentInput.getText().toString());
+                    double change = payment - totalAmount;
+
+                    if (payment >= totalAmount) {
+                        showConfirmationDialog(totalAmount, payment, change);
+                    } else {
+                        Toast.makeText(this, "Payment is less than total amount.", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Please enter a valid payment amount.", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(CartActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
             }
@@ -100,22 +94,31 @@ public class CartActivity extends AppCompatActivity {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-    // Method to calculate total price and update the TextView
+
     private void updateTotalPrice() {
-        double totalPrice = 0.0;
-        for (CartItem item : cartItems) {
-            totalPrice += item.getQuantity() * item.getProduct().getProdCost();
-        }
+        double totalPrice = calculateTotalAmount();
         totalPriceText.setText(String.format("Total: ₱%.2f", totalPrice));
     }
 
-    private void checkout() {
-        if (cartItems.isEmpty()) {
-            Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
-            return;
+    private double calculateTotalAmount() {
+        double total = 0.0;
+        for (CartItem item : cartItems) {
+            total += item.getQuantity() * item.getProduct().getProdCost();
         }
+        return total;
+    }
 
-        AtomicReference<Double> totalCost = new AtomicReference<>(0.0);
+    private void showConfirmationDialog(double totalAmount, double payment, double change) {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Checkout")
+                .setMessage("Total: ₱" + totalAmount + "\nPayment: ₱" + payment + "\nChange: ₱" + change + "\nProceed to checkout?")
+                .setPositiveButton("Yes", (dialog, which) -> checkout(payment, change))
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void checkout(double payment, double change) {
+        AtomicReference<Double> totalCost = new AtomicReference<>(calculateTotalAmount());
         List<ReceiptItem> receiptItems = new ArrayList<>();
         int totalItems = cartItems.size();
         AtomicReference<Integer> completedCount = new AtomicReference<>(0);
@@ -142,9 +145,7 @@ public class CartActivity extends AppCompatActivity {
 
                             db.collection("products").document(documentId)
                                     .update("prodQty", newQuantity, "prodTotalPrice", newQuantity * product.getProdCost())
-                                    .addOnSuccessListener(aVoid -> {
-                                        //Toast.makeText(CartActivity.this, "Checkout successful for " + product.getProdName(), Toast.LENGTH_SHORT).show();
-                                    })
+                                    .addOnSuccessListener(aVoid -> {})
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(CartActivity.this, "Failed to update product: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     });
@@ -154,13 +155,13 @@ public class CartActivity extends AppCompatActivity {
 
                         completedCount.updateAndGet(v -> v + 1);
                         if (completedCount.get() == totalItems) {
-                            checkAndSaveReceipt(receiptItems, totalCost.get());
+                            checkAndSaveReceipt(receiptItems, totalCost.get(), payment, change);
                         }
                     });
         }
     }
 
-    private void checkAndSaveReceipt(List<ReceiptItem> receiptItems, double totalCost) {
+    private void checkAndSaveReceipt(List<ReceiptItem> receiptItems, double totalCost, double payment, double change) {
         String documentName = "SalesRecord_" + generateRandomReceiptId();
 
         db.collection("receipts")
@@ -178,7 +179,7 @@ public class CartActivity extends AppCompatActivity {
                                     Toast.makeText(CartActivity.this, "Failed to update receipt: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                 });
                     } else {
-                        saveReceipt(receiptItems, totalCost, documentName);
+                        saveReceipt(receiptItems, totalCost, documentName, payment, change);
                     }
                     ShoppingCart.clearCart();
                     cartAdapter.notifyDataSetChanged();
@@ -197,13 +198,13 @@ public class CartActivity extends AppCompatActivity {
         return receiptId.toString();
     }
 
-    private void saveReceipt(List<ReceiptItem> receiptItems, double totalCost, String documentName) {
-        Receipt receipt = new Receipt(receiptItems, totalCost, new Date(), documentName);
+    private void saveReceipt(List<ReceiptItem> receiptItems, double totalCost, String documentName, double payment, double change) {
+        Receipt receipt = new Receipt(receiptItems, totalCost, new Date(), documentName, payment, change);
 
         db.collection("receipts")
                 .add(receipt)
                 .addOnSuccessListener(documentReference -> {
-                    // Toast.makeText(CartActivity.this, "Receipt saved: " + documentReference.getId(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CartActivity.this, "Receipt saved with change: ₱" + change, Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(CartActivity.this, "Failed to save receipt: " + e.getMessage(), Toast.LENGTH_SHORT).show();

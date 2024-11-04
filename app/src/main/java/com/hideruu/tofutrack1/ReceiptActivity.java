@@ -52,14 +52,12 @@ public class ReceiptActivity extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Clear the list before adding new data
                         receiptList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Receipt receipt = document.toObject(Receipt.class);
                             receiptList.add(receipt);
                         }
 
-                        // Sort the receiptList by dateTime in descending order (latest first)
                         sortReceiptsByDate(receiptList);
                         updateRecyclerView(receiptList);
                     } else {
@@ -67,6 +65,7 @@ public class ReceiptActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void sortReceiptsByDate(List<Receipt> list) {
         Collections.sort(list, (r1, r2) -> r2.getDateTime().compareTo(r1.getDateTime()));
