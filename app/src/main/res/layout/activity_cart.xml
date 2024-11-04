@@ -48,41 +48,57 @@
         android:layout_above="@id/bottomBar"
         android:orientation="horizontal"
         android:background="@android:color/white"
-        android:padding="16dp"
+        android:padding="10dp"
         android:elevation="8dp"
-        android:gravity="end">
+        android:gravity="center"> <!-- Changed gravity to center -->
 
         <TextView
-            android:id="@+id/totalPriceText"
-            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:id="@+id/Payment"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Total: $0.00"
-            android:textSize="18sp"
+            android:layout_weight=".5"
+            android:text="Payment:"
+            android:textSize="15sp"
             android:textColor="@android:color/black"
-            android:layout_weight="1" />
-
+            android:gravity="center" />
         <EditText
+            android:textColor="@color/my_primary"
+            android:layout_margin="10dp"
             android:id="@+id/paymentInput"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:hint="Enter Payment"
+            android:layout_weight=".75"
+            android:layout_marginStart="5dp"
+            android:hint="amount"
             android:inputType="numberDecimal"
-            android:textSize="16sp"
+            android:textSize="15sp"
+            android:elevation="5dp"
             android:background="@drawable/edit_text_rounded_corner"
-            android:layout_weight="1"/>
+            android:padding="10dp"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/changeText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Change: ₱0.00"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_weight="1" />
-    </LinearLayout>
+            android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".5"
+        android:text="Change: ₱0.00"
+        android:textSize="15sp"
+        android:textColor="@android:color/black"
+        android:gravity="center" />
 
-    <!-- Bottom Bar for Clear Cart and Checkout buttons -->
+        <TextView
+            android:textStyle="bold"
+            android:id="@+id/totalPriceText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="Total: $0.00"
+            android:textSize="15sp"
+            android:textColor="@android:color/black"
+            android:gravity="center" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
@@ -90,9 +106,10 @@
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:background="@android:color/white"
-        android:padding="16dp"
-        android:elevation="8dp"
+        android:padding="15dp"
+        android:elevation="12dp"
         android:weightSum="2">
+
 
         <Button
             android:id="@+id/clearCartButton"

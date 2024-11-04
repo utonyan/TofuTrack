@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class CartActivity extends AppCompatActivity {
+public class CartActivity extends AppCompatActivity implements CartAdapter.OnCartItemChangeListener {
     private RecyclerView recyclerView;
     private CartAdapter cartAdapter;
     private List<CartItem> cartItems;
@@ -36,7 +36,7 @@ public class CartActivity extends AppCompatActivity {
     private Button checkoutButton, clearCartButton;
     private SharedPreferences sharedPreferences;
     private TextView totalPriceText, changeText;
-    private EditText paymentInput;
+    EditText paymentInput;
     private static final String PREFS_NAME = "TofuTrackPrefs";
 
     @Override
@@ -54,7 +54,8 @@ public class CartActivity extends AppCompatActivity {
 
         // Get cart items and set up adapter
         cartItems = ShoppingCart.getCartItems();
-        cartAdapter = new CartAdapter(cartItems);
+        cartAdapter = new CartAdapter(cartItems, this, this); // Pass 'this' as the CartActivity reference
+
         recyclerView.setAdapter(cartAdapter);
 
         // Initialize total price and payment fields
@@ -125,7 +126,7 @@ public class CartActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void updateTotalPrice() {
+    public void updateTotalPrice() {
         double totalPrice = calculateTotalAmount();
         totalPriceText.setText(String.format("Total: ₱%.2f", totalPrice));
     }
@@ -227,12 +228,13 @@ public class CartActivity extends AppCompatActivity {
         StringBuilder receiptId = new StringBuilder();
         for (int i = 0; i < 8; i++) {
             int randomChar = random.nextInt(36);
-            receiptId.append((char) (randomChar < 10 ? '0' + randomChar : 'A' + (randomChar - 10)));
+            receiptId.append((char) (randomChar < 10 ? '0' + randomChar : 'A' + randomChar - 10));
         }
         return receiptId.toString();
     }
 
     private void saveReceipt(List<ReceiptItem> receiptItems, double totalCost, String documentName, double payment, double change) {
+        // Create receipt document
         Receipt receipt = new Receipt(receiptItems, totalCost, new Date(), documentName, payment, change);
         db.collection("receipts").document(documentName)
                 .set(receipt)
@@ -244,18 +246,23 @@ public class CartActivity extends AppCompatActivity {
                 });
     }
 
-    private void updateCartItemCountInPOS() {
-        // Implement this method to update cart item count in your POS activity if needed.
-    }
-
     private void updateChangeText() {
-        double totalAmount = calculateTotalAmount();
         try {
             double payment = Double.parseDouble(paymentInput.getText().toString());
-            double change = payment - totalAmount;
+            double total = calculateTotalAmount();
+            double change = payment - total;
             changeText.setText(String.format("Change: ₱%.2f", change));
         } catch (NumberFormatException e) {
             changeText.setText("Change: ₱0.00");
         }
+    }
+
+    @Override
+    public void onCartItemChanged() {
+        updateTotalPrice();
+    }
+
+    private void updateCartItemCountInPOS() {
+        // Update cart item count in your POS system here if needed
     }
 }

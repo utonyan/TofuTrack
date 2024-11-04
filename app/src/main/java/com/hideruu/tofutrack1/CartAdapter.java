@@ -16,9 +16,14 @@ import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
     private List<CartItem> cartItems;
+    private OnCartItemChangeListener listener;
+    private CartActivity cartActivity; // Add this line
 
-    public CartAdapter(List<CartItem> cartItems) {
+    // Constructor with listener and activity parameters
+    public CartAdapter(List<CartItem> cartItems, OnCartItemChangeListener listener, CartActivity cartActivity) {
         this.cartItems = cartItems;
+        this.listener = listener;
+        this.cartActivity = cartActivity; // Set the activity reference
     }
 
     @NonNull
@@ -87,10 +92,14 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                         Toast.makeText(context, "Cannot set quantity greater than available (" + availableQuantity + ")", Toast.LENGTH_SHORT).show();
                     } else if (newQuantity > 0) {
                         cartItem.setQuantity(newQuantity);
+                        notifyDataSetChanged(); // Refresh the adapter to reflect changes
+                        if (listener != null) {
+                            listener.onCartItemChanged(); // Notify the listener about the change
+                            cartActivity.paymentInput.setText("");
+                        }
                     } else {
                         Toast.makeText(context, "Quantity must be greater than 0", Toast.LENGTH_SHORT).show();
                     }
-                    notifyDataSetChanged(); // Refresh the adapter to reflect changes
                 } catch (NumberFormatException e) {
                     Toast.makeText(context, "Invalid quantity", Toast.LENGTH_SHORT).show();
                 }
@@ -110,10 +119,22 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, cartItems.size());
                         Toast.makeText(itemView.getContext(), "Item deleted", Toast.LENGTH_SHORT).show();
+
+                        // Clear the payment input when an item is deleted
+                        cartActivity.paymentInput.setText(""); // Clear payment input
+
+                        // Update total price in the activity
+                        cartActivity.updateTotalPrice(); // Call the method in CartActivity
                     })
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                     .show();
         }
 
+
+    }
+
+    // Define the listener interface
+    public interface OnCartItemChangeListener {
+        void onCartItemChanged();
     }
 }
