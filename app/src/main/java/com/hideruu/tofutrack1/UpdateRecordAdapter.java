@@ -56,7 +56,7 @@ public class UpdateRecordAdapter extends RecyclerView.Adapter<UpdateRecordAdapte
         UpdateRecord record = updateRecords.get(position);
         holder.tvProdName.setText(record.getProdName());
         holder.tvProdQtyUnitType.setText(String.format("Quantity: %d %s", record.getProdQty(), record.getProdUnitType()));
-        holder.tvProdCost.setText(String.format("Cost: %.2f", record.getProdCost()));
+        holder.tvProdCost.setText(String.format("Cost: ₱%.2f", record.getProdCost()));
         holder.tvProdGroup.setText(record.getProdGroup());
 
         // Format the timestamp to 12-hour format
