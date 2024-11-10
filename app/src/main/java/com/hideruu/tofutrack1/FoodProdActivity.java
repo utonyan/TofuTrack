@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -161,7 +162,6 @@ public class FoodProdActivity extends AppCompatActivity {
 
         int productionQuantity = Integer.parseInt(productionQtyStr);
 
-        // Check if selected quantities of raw materials and packaging are valid
         if (!rawMaterialAdapter.hasSelectedItems() || !packagingAdapter.hasSelectedItems()) {
             Toast.makeText(this, "Please select at least one raw material and one packaging item", Toast.LENGTH_SHORT).show();
             return;
@@ -177,40 +177,67 @@ public class FoodProdActivity extends AppCompatActivity {
             return;
         }
 
-        // Retrieve selected raw materials and their quantities
+        // Retrieve selected raw materials and packaging for display in the dialog
         Map<String, Integer> selectedRawMaterials = rawMaterialAdapter.getSelectedItems();
         Map<String, Integer> selectedPackaging = packagingAdapter.getSelectedItems();
 
-        // Convert selected items to arrays
-        String[] rawMaterialsArray = new String[selectedRawMaterials.size()];
-        int[] rawMaterialsQuantitiesArray = new int[selectedRawMaterials.size()];
-        int index = 0;
-        for (Map.Entry<String, Integer> entry : selectedRawMaterials.entrySet()) {
-            rawMaterialsArray[index] = entry.getKey(); // material name
-            rawMaterialsQuantitiesArray[index] = entry.getValue(); // quantity
-            index++;
-        }
-
-        String[] packagingArray = new String[selectedPackaging.size()];
-        int[] packagingQuantitiesArray = new int[selectedPackaging.size()];
-        index = 0;
-        for (Map.Entry<String, Integer> entry : selectedPackaging.entrySet()) {
-            packagingArray[index] = entry.getKey(); // packaging name
-            packagingQuantitiesArray[index] = entry.getValue(); // quantity
-            index++;
-        }
-
-        // Log selected items for debugging
-        Log.d("FoodProdActivity", "Selected Raw Materials: " + Arrays.toString(rawMaterialsArray) + " with quantities: " + Arrays.toString(rawMaterialsQuantitiesArray));
-        Log.d("FoodProdActivity", "Selected Packaging: " + Arrays.toString(packagingArray) + " with quantities: " + Arrays.toString(packagingQuantitiesArray));
-
-        // Deduct quantities from raw materials and packaging before updating the product
-        rawMaterialAdapter.deductQuantitiesInFirestore(db);
-        packagingAdapter.deductQuantitiesInFirestore(db);
-
-        // Update the product quantity and total price in Firestore
-        updateQuantitiesInFirestore(selectedProduct, productionQuantity);
+        // Show the confirmation dialog
+        showConfirmationDialog(selectedProduct, productionQuantity, selectedRawMaterials, selectedPackaging);
     }
+
+    private void showConfirmationDialog(DataClass selectedProduct, int productionQuantity, Map<String, Integer> rawMaterials, Map<String, Integer> packaging) {
+        StringBuilder message = new StringBuilder();
+        message.append("Product: ").append(selectedProduct.getProdName()).append("\n")
+                .append("Quantity to Produce: ").append(productionQuantity).append("\n\n")
+                .append("Selected Raw Materials:\n");
+
+        for (Map.Entry<String, Integer> entry : rawMaterials.entrySet()) {
+            message.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+
+        message.append("\nSelected Packaging:\n");
+        for (Map.Entry<String, Integer> entry : packaging.entrySet()) {
+            message.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Production")
+                .setMessage(message.toString())
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    // Convert selected items to arrays
+                    String[] rawMaterialsArray = new String[rawMaterials.size()];
+                    int[] rawMaterialsQuantitiesArray = new int[rawMaterials.size()];
+                    int index = 0;
+                    for (Map.Entry<String, Integer> entry : rawMaterials.entrySet()) {
+                        rawMaterialsArray[index] = entry.getKey(); // material name
+                        rawMaterialsQuantitiesArray[index] = entry.getValue(); // quantity
+                        index++;
+                    }
+
+                    String[] packagingArray = new String[packaging.size()];
+                    int[] packagingQuantitiesArray = new int[packaging.size()];
+                    index = 0;
+                    for (Map.Entry<String, Integer> entry : packaging.entrySet()) {
+                        packagingArray[index] = entry.getKey(); // packaging name
+                        packagingQuantitiesArray[index] = entry.getValue(); // quantity
+                        index++;
+                    }
+
+                    // Log selected items for debugging
+                    Log.d("FoodProdActivity", "Selected Raw Materials: " + Arrays.toString(rawMaterialsArray) + " with quantities: " + Arrays.toString(rawMaterialsQuantitiesArray));
+                    Log.d("FoodProdActivity", "Selected Packaging: " + Arrays.toString(packagingArray) + " with quantities: " + Arrays.toString(packagingQuantitiesArray));
+
+                    // Deduct quantities from raw materials and packaging before updating the product
+                    rawMaterialAdapter.deductQuantitiesInFirestore(db);
+                    packagingAdapter.deductQuantitiesInFirestore(db);
+
+                    // Update the product quantity and total price in Firestore
+                    updateQuantitiesInFirestore(selectedProduct, productionQuantity);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
 
     private void updateQuantitiesInFirestore(DataClass selectedProduct, int productionQuantity) {
         int newProductQty = selectedProduct.getProdQty() + productionQuantity; // Update quantity based on production
